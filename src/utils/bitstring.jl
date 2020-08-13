@@ -1,0 +1,2 @@
+
+flip(bit::Bool) = ~bit
