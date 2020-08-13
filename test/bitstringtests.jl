@@ -1,3 +1,4 @@
+using Pidoh
 
 @testset "Flip bit string" begin
     @test flip(true) == false

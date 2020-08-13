@@ -1,7 +1,10 @@
 using Pidoh
 using Test
+using SafeTestsets
 
-include("bitstringtests.jl")
+
+@safetestset "BitString Tests" begin include("bitstringtests.jl") end
+
 
 @testset "Pidoh.jl" begin
     # Write your tests here.
