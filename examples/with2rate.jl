@@ -5,13 +5,6 @@ using Pidoh
 
 fit = OneMax()
 # Here, we define the mutation function on one bit.
-mutation(x::Bool, prob::Real) = if (rand() < prob) return ~x else return x end
-
-function mutation(x::BitArray, prob::Real)
-    y = copy(x)
-    # The dot after function name means that run the function for each element in y.
-    mutation.(y, prob)
-end
 
 function with2rate(n, λ, max_iter, fit)
     rowsdf = DataFrames.DataFrame()
@@ -29,10 +22,10 @@ function with2rate(n, λ, max_iter, fit)
         for i in 1:λ
             if i ≤ λ/2
                 ry = r/(2n)
-                y = mutation(x, ry)
+                y = mutation(x, UniformlyIndependentMutation(ry))
             else
                 ry = 2r/n
-                y = mutation(x, ry)
+                y = mutation(x, UniformlyIndependentMutation(ry))
             end
             yfitness = fitness(y, fit)
 
