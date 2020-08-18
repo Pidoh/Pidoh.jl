@@ -1,11 +1,16 @@
 module Pidoh
 
-include("utils/utils.jl")
-export UniformlyIndependentMutation
-export mutation, flip
 
 
 include("problems/problems.jl")
-export OneMax, ZeroMax
+export AbstractProblem, OneMax, ZeroMax
 export fitness
+
+include("instance.jl")
+export Instance
+export fitness
+
+include("utils/utils.jl")
+export UniformlyIndependentMutation
+export mutation, flip, mutationpositions
 end

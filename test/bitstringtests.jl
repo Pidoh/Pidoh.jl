@@ -1,4 +1,5 @@
 using Pidoh
+using Random
 
 @testset "Flip bit string" begin
     @test flip(true) == false
@@ -22,9 +23,9 @@ zeromax = ZeroMax()
     @test fitness(BitArray([]), zeromax) == 0
 end
 
-
+ins1 = Instance(BitArray([true,true,false]), OneMax())
 @testset "UniformlyIndependentMutation" begin
-    @test mutation([true,false],UniformlyIndependentMutation(1.0)) == [false, true]
-    @test mutation(BitArray([true,false]),UniformlyIndependentMutation(1.0)) == [false, true]
-    @test mutation(true,UniformlyIndependentMutation(1.0)) == false
+    @test mutation(ins1,UniformlyIndependentMutation(0.0)).individual == ins1.individual
+    @test mutation(ins1,UniformlyIndependentMutation(1.0)).individual != ins1.individual
+    @test fitness(mutation(ins1,UniformlyIndependentMutation(1.0))) == 2
 end

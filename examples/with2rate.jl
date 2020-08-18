@@ -3,21 +3,16 @@ using DataFrames
 using Plots
 using Pidoh
 
-fit = OneMax()
+
 # Here, we define the mutation function on one bit.
-
-function with2rate(n, λ, max_iter, fit)
+function with2rate(x, λ, max_iter)
     rowsdf = DataFrames.DataFrame()
-
     # bitrand returns a random bit string.
-    x = bitrand(n)
-    xfitness = fitness(x, fit)
 
     r = 2
 
     for iter ∈ 1:max_iter
-        α = x
-        αfitness = n
+        α = copy(x, fitnessvalue = length(x))
         rα = r
         for i in 1:λ
             if i ≤ λ/2
@@ -27,23 +22,20 @@ function with2rate(n, λ, max_iter, fit)
                 ry = 2r/n
                 y = mutation(x, UniformlyIndependentMutation(ry))
             end
-            yfitness = fitness(y, fit)
 
-            if yfitness < αfitness
+            if fitness(y) ≦ fitness(α)
                 α = y
-                αfitness = yfitness
                 rα = ry
             end
         end
 
         # The second condition is for implementing "breaking ties randomly".
-        if αfitness ≤ xfitness || (αfitness == xfitness && rand() < 0.5 )
+        if fitness(α) ≤ fitness(x) || (fitness(α) == fitness(x) && rand() < 0.5 )
             x = α
-            xfitness = αfitness
-            println(xfitness, " with rate= ", r, " in iteration= ", iter)
-            push!(rowsdf, (iteration= iter, rate= rα, fitness= αfitness ))
+            println(fitness(x), " with rate= ", r, " in iteration= ", iter)
+            push!(rowsdf, (iteration= iter, rate= rα, fitness= fitness(α) ))
 
-            if xfitness == 0
+            if fitness(x) == 0
                 println("The Optimum is found.")
                 return rowsdf
             end
@@ -59,11 +51,14 @@ function with2rate(n, λ, max_iter, fit)
     return rowsdf
 end
 
-df = with2rate(1000, 500, 10000, fit)
+n = 10000
+x = Instance(bitrand(n), OneMax())
+
+df = with2rate(x, 50, 10000)
 
 
 x = df.iteration
 y = df.rate
 # y = df.fitness
 
-# plot(x, y)
+plot(x, y)

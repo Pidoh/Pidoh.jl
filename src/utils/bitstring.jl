@@ -7,13 +7,21 @@ struct UniformlyIndependentMutation
     probability :: Real
 end
 
-
-mutation(x, mut::UniformlyIndependentMutation) = if (rand() < mut.probability) return flip(x) else return x end
-
-function mutation(x::T, mut::UniformlyIndependentMutation) where T <:AbstractArray
-    y = copy(x)
-    for bit ∈ 1:length(y)
-        y[bit] = mutation(y[bit], mut)
+function mutationpositions(x::Instance, mut::UniformlyIndependentMutation)
+    positions :: Array{Int64,1} = []
+    for bit in 1:length(x)
+        if rand() < mut.probability
+            push!(positions, bit)
+        end
     end
-    return y
+    positions
+end
+
+
+function mutation(x::Instance, mut::UniformlyIndependentMutation)
+    y = copy(x.individual)
+    for bit ∈ mutationpositions(x, mut)
+        y[bit] = flip(y[bit])
+    end
+    Instance(y, x.problem)
 end
