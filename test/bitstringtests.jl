@@ -23,8 +23,27 @@ zeromax = ZeroMax()
     @test fitness(BitArray([]), zeromax) == 0
 end
 
+
+jump = Jump(3)
+@testset "ZeroMax Fitness Function" begin
+    @test fitness(BitArray([0,0,0,0,0,0,0,0,0,0]), jump) == jump.jumpsize
+    @test fitness(BitArray([1,0,0,0,0,0,0,0,0,0]), jump) == jump.jumpsize+1
+    @test fitness(BitArray([1,1,1,1,1,1,1,1,1,1]), jump) == jump.jumpsize+10
+    @test fitness(BitArray([1,1,1,1,1,1,1,1,1,0]), jump) == 1
+    @test fitness(BitArray([1,1,1,1,1,1,1,0,0,0]), jump) == 10
+    @test fitness(BitArray([1,1,1,1,1,1,1,1,0,0]), jump) == 2
+
+end
+
+
 ins1 = Instance(BitArray([true,true,false]), OneMax())
-@testset "UniformlyIndependentMutation" begin
+
+@testset "UniformlyIndependentMutation mutation positions" begin
+    @test mutationpositions(ins1,UniformlyIndependentMutation(0.0)) == []
+    @test mutationpositions(ins1,UniformlyIndependentMutation(1.0)) == Array(1:length(ins1))
+end
+
+@testset "UniformlyIndependentMutation mutation" begin
     @test mutation(ins1,UniformlyIndependentMutation(0.0)).individual == ins1.individual
     @test mutation(ins1,UniformlyIndependentMutation(1.0)).individual != ins1.individual
     @test fitness(mutation(ins1,UniformlyIndependentMutation(1.0))) == 2

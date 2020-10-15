@@ -1,4 +1,5 @@
 import Base: length, copy
+
 struct Instance
     individual
     problem :: AbstractProblem
@@ -11,6 +12,9 @@ end
 
 
 fitness(instance::Instance) = instance.fitnessvalue
+fitness(instance::Instance, flippositions) = fitness(instance.individual, instance.problem, flippositions)
+optimum(instance::Instance) = optimum(instance.problem)
+isoptimum(instance::Instance) = fitness(instance) == optimum(instance)
 length(instance::Instance) = length(instance.individual)
 
 function copy(instance::Instance; fitnessvalue::Number=fitness(instance))
