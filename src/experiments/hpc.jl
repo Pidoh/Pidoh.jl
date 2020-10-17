@@ -10,7 +10,7 @@ struct HPC
 end
 
 
-sshcommand(hpc::HPC, command::String) = @capture_out run(`ssh $(hpc.user)@$(hpc.server) source /etc/profile; $command`)
+sshcommand(hpc::HPC, command::String) = @capture_out run(`ssh $(hpc.user)"@"$(hpc.server) "source /etc/profile;" $command`)
 
 function createworkspace(exp::Experiment, hpc::HPC)
     name = exp.name
