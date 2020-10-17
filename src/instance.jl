@@ -12,7 +12,7 @@ end
 
 
 fitness(instance::Instance) = instance.fitnessvalue
-fitness(instance::Instance, flippositions) = fitness(instance.individual, instance.problem, flippositions)
+fitness(instance::Instance, flippositions) = fitness(instance.individual, instance.problem, instance.fitnessvalue, flippositions)
 optimum(instance::Instance) = optimum(instance.problem)
 isoptimum(instance::Instance) = fitness(instance) == optimum(instance)
 length(instance::Instance) = length(instance.individual)

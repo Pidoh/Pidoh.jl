@@ -4,7 +4,7 @@ using JLD
 include("_template.jl")
 
 struct HPC
-    server :: String
+    server::String
     user::String
     core::Integer
 end
@@ -77,7 +77,7 @@ function submitjob(exp::Experiment, hpc::HPC)
     @info sshcommand(hpc, thejob)
 end
 
-function submitTask(workspace, taskfile, tasknumber=1)
+function submitTask(workspace, taskfile, tasknumber=20)
     home_directory = @capture_out run(`ssh amraj@login2.hpc.dtu.dk 'pwd'`)
     home_directory = home_directory[1:end-1] # To remove '\n'
     command = "$home_directory/julia/$workspace/$taskfile"
@@ -89,8 +89,10 @@ function submitTask(workspace, taskfile, tasknumber=1)
     # @info @capture_out run(`ssh amraj@login2.hpc.dtu.dk $thejob`)
 end
 
-function fetchResult(workspace)
-    run(`scp amraj@login2.hpc.dtu.dk:~/results/results.csv results`)
+function fetchresults(exp::Experiment, hpc::HPC)
+    workspace = exp.workspace
+    run(`scp -r amraj@login2.hpc.dtu.dk:~/$workspace/_results $workspace/_results`)
+    @info "The results folder is downloaded in $workspace/_results."
 end
 
 # taskStatus() = @info sshCommand("bstat compute")

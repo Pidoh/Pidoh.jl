@@ -1,5 +1,6 @@
 
 import Base: run
+
 # struct Experiment{T <: AbstractAlgorithm, S <: Instance}
 #     algorithms::Array{T,1}
 #     initials::Array{S,1}
@@ -43,9 +44,13 @@ include("engines.jl")
 
 function run(exp::Experiment)
     traces::Array{Trace,1}=[]
-    for i in 1:exp.count
-        trace = optimize(exp.initials[i], exp.algorithms[i])
-        push!(traces, trace)
+    @warn "The number of threads is $(Threads.nthreads())"
+    # @warn "The number of procs is $(nprocs())"
+    # addprocs(Threads.nthreads())
+    # @warn "The number of procs is $(nprocs())"
+
+    Threads.@threads for i in 1:exp.count
+        optimize(exp.initials[i], exp.algorithms[i])
     end
     traces
 end

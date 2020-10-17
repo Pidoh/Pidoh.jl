@@ -1,6 +1,11 @@
 
 println("HELLO")
 
+using Logging
+
+logger = SimpleLogger(stdout, Logging.Debug)
+global_logger(logger)
+
 using Pkg
 Pkg.status()
 Pkg.activate(".")

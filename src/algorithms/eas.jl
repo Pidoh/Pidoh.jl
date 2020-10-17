@@ -123,7 +123,7 @@ function optimize(x, setting::ea1p1SD)
             println(fitness(x), " in iteration= ", iter)
             record(trace, y, iter, isoptimum(y))
             if isoptimum(x)
-                println("The Optimum is found.")
+                # println("The Optimum is found.")
                 return trace
             end
         elseif fitness(y) == fitness(x) && r == 1
@@ -134,6 +134,106 @@ function optimize(x, setting::ea1p1SD)
             r = min(r+1, ceil(Int,n/2))
             println("New rate", r)
             u = 0
+        end
+    end
+    trace
+end
+
+struct ea1pλSASD <: AbstractEA
+    R :: Real
+    λ :: Integer
+    stop :: AbstractStop
+    thresholds :: Array
+    function ea1pλSASD(;R::Real=1, λ:: Integer = 10, stop::AbstractStop=fixedbudget(1000), thresholds=[typemax(Int) for _ in 1:10])
+        new(R, λ, stop, thresholds)
+    end
+end
+
+function optimize(x, setting::ea1pλSASD)
+    trace = Trace(setting, x)
+    n=length(x)
+    thresholds = setting.thresholds
+    λ=setting.λ
+    r_init = 2
+    r = r_init
+    u = 0
+    g = false
+
+    for iter ∈ 1:niterations(setting.stop)
+        u += 1
+        if g == false
+            y = copy(x)
+            ry = r
+            for i in 1:λ
+                if i ≤ λ/2
+                    rα = r/(2n)
+                    α = mutation(x, UniformlyIndependentMutation(rα))
+                else
+                    rα = 2r/n
+                    α = mutation(x, UniformlyIndependentMutation(rα))
+                end
+
+                if fitness(α) ≥ fitness(y)
+                    y = α
+                    ry = rα
+                end
+            end
+            if fitness(y) ≥ fitness(x)
+
+                if fitness(y) > fitness(x)
+                    println("New rate $r in $g")
+                    record(trace, y, iter, isoptimum(y))
+                end
+                x = y
+
+                if isoptimum(x)
+                    return trace
+                end
+            end
+
+            if rand() < 0.5
+                r = ry
+            else
+                r = if (rand() < 0.5)  r = r/2  else  r = 2r  end
+            end
+            r = floor(Int,min(max(r,2),n/4))
+
+            if u > thresholds[r]/λ
+                r = 2
+                println("New rate $r in $g")
+                println("STAG detection.")
+                g = true
+                u = 0
+            end
+
+        else
+            y = copy(x)
+            for i in 1:λ
+                α = mutation(x, UniformlyIndependentMutation(r/n))
+
+                if fitness(α) ≥ fitness(y)
+                    y = α
+                end
+            end
+            # The second condition is for implementing "breaking ties randomly".
+            if fitness(y) > fitness(x)
+                x = y
+                r = r_init
+                println("New rate $r in $g")
+                g = false
+                u = 0
+                record(trace, y, iter, isoptimum(y))
+                if isoptimum(x)
+                    # println("The Optimum is found.")
+                    return trace
+                end
+            end
+
+            if u > thresholds[r]/λ
+                r = min(r+1, ceil(Int,n/2))
+                println("New rate $r in $g")
+                u = 0
+            end
         end
     end
     trace
