@@ -18,6 +18,7 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]
 BenchmarkTools = "0.5"
+CSV = "0.7"
 DataFrames = "0.21"
 julia = "1.1"
 
