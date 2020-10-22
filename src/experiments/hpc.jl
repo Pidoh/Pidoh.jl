@@ -37,8 +37,8 @@ function createworkspaceinserver(exp::Experiment, hpc::HPC)
     @info "Creating a copy of the project in $name direcotry of your folder in server ..."
     workspace = exp.workspace
     sshcommand(hpc, "mkdir -p $workspace")
-    run(`scp -r src $(hpc.user)@$(hpc.server):~/$workspace`)
-    run(`scp -r $workspace/. $(hpc.user)@$(hpc.server):~/$workspace`)
+    run(`scp -r src $(hpc.user)"@"$(hpc.server)":~/"$workspace`)
+    run(`scp -r $workspace"/." $(hpc.user)"@"$(hpc.server)":~/"$workspace`)
     # sshCommand("mkdir results/$name")
 end
 
@@ -51,7 +51,7 @@ function removeWorkSpaceDataServer(name)
 end
 
 function createtasktemplate(exp::Experiment, hpc::HPC)
-    home_directory = @capture_out run(`ssh amraj@login2.hpc.dtu.dk 'pwd'`)
+    home_directory = @capture_out run(`ssh "amraj@login2.hpc.dtu.dk" 'pwd'`)
     home_directory = home_directory[1:end-1] # To remove '\n'
     workspace = exp.workspace
     tpl = template()
@@ -70,15 +70,15 @@ end
 
 
 function submitjob(exp::Experiment, hpc::HPC)
-    tasknumber = 1
+    tasknumber = 40
     workspace = exp.workspace
     bash_file = "job.sh"
     thejob = "cd $workspace && for i in {1..$tasknumber}; do bsub < $bash_file ; sleep 1; done"
     @info sshcommand(hpc, thejob)
 end
 
-function submitTask(workspace, taskfile, tasknumber=20)
-    home_directory = @capture_out run(`ssh amraj@login2.hpc.dtu.dk 'pwd'`)
+function submitTask(workspace, taskfile, tasknumber=40)
+    home_directory = @capture_out run(`ssh "amraj@login2.hpc.dtu.dk" 'pwd'`)
     home_directory = home_directory[1:end-1] # To remove '\n'
     command = "$home_directory/julia/$workspace/$taskfile"
     bash_file = "$home_directory/julia/$workspace/server/templates/$workspace.sh"
@@ -91,7 +91,7 @@ end
 
 function fetchresults(exp::Experiment, hpc::HPC)
     workspace = exp.workspace
-    run(`scp -r amraj@login2.hpc.dtu.dk:~/$workspace/_results $workspace/_results`)
+    run(`scp -r "amraj@login2.hpc.dtu.dk:~/"$workspace/_results $workspace/_results`)
     @info "The results folder is downloaded in $workspace/_results."
 end
 

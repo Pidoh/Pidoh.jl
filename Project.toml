@@ -14,6 +14,7 @@ JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 Mustache = "ffc61752-8dc7-55ee-8c37-f3e9cdd09e70"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RandomNumbers = "e6cf234a-135c-5ec9-84dd-332b85af5143"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]

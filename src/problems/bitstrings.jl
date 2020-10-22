@@ -42,40 +42,55 @@ function fitness(x::BitArray, problem::T, fitnessvalue :: Number, flipsposition)
     fitness(y, problem)
 end
 
-function fitness(x::BitArray, problem::OneMax, fitnessvalue:: Number, flipsposition)
-    if length(flipsposition) == 0
-        return fitnessvalue
-    end
-    fit = fitnessvalue
-    for item ∈ flipsposition
-        @inbounds if x[item]
-            fit -= 1
-        else
-            fit += 1
-        end
-    end
-    fit
-end
+# function fitness(x::BitArray, problem::OneMax, fitnessvalue:: Number, flipsposition)
+#     if length(flipsposition) == 0
+#         return fitnessvalue
+#     end
+#     fit = fitnessvalue
+#     for item ∈ flipsposition
+#         @inbounds if x[item]
+#             fit -= 1
+#         else
+#             fit += 1
+#         end
+#     end
+#     fit
+# end
 
-function fitness(x::BitArray, problem::Jump, fitnessvalue:: Number, flipsposition)
-    if length(flipsposition) == 0
-        return fitnessvalue
-    end
-    onemax = fitnessvalue
-    for item ∈ flipsposition
-        @inbounds if x[item]
-            fit -= 1
-        else
-            fit += 1
-        end
-    end
-    n=problem.n
-    k = problem.jumpsize
-    jump = -1
-    if ((onemax ≤ n - k) || (onemax == n))
-        jump =k + onemax
-    else
-        jump = n - onemax
-    end
-    jump
-end
+# function fitness(x::BitArray, problem::Jump, fitnessvalue:: Number, flipsposition)
+#     if length(flipsposition) == 0
+#         return fitnessvalue
+#     end
+#     n=problem.n
+#     k = problem.jumpsize
+#
+#     onemax = fitnessvalue
+#
+#     if fitnessvalue < k
+#         onemax = n - fitnessvalue
+#     else
+#         onemax = fitnessvalue - k
+#     end
+#
+#     if ((onemax ≤ n - k) || (onemax == n))
+#         jump =k + onemax
+#     else
+#         jump = n - onemax
+#     end
+#
+#     for item ∈ flipsposition
+#         @inbounds if x[item]
+#             onemax -= 1
+#         else
+#             onemax += 1
+#         end
+#     end
+#
+#     jump = -1
+#     if ((onemax ≤ n - k) || (onemax == n))
+#         jump =k + onemax
+#     else
+#         jump = n - onemax
+#     end
+#     jump
+# end

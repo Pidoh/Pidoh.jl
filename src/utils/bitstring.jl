@@ -1,4 +1,5 @@
 using Distributions
+using StatsBase
 
 flip(bit::Bool) = ~bit
 function flip!(individual::BitArray,index::Integer)
@@ -69,3 +70,17 @@ function mutation(x::Instance, mut::UniformlyIndependentMutation)
     Instance(y, x.problem, fitnessvalue=fitness(x,positions))
 end
 # sa
+
+
+struct KBitFlip <: Mutation
+    K :: Integer
+end
+
+function mutation(x::Instance, mut::KBitFlip)
+    positions = sample(1:length(x), mut.K, replace=false)
+    y = copy(x.individual)
+    for bit ∈ positions
+        flip!(y,bit)
+    end
+    Instance(y, x.problem, fitnessvalue=fitness(x,positions))
+end

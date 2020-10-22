@@ -43,16 +43,9 @@ end
 include("engines.jl")
 
 function run(exp::Experiment)
-    traces::Array{Trace,1}=[]
-    @warn "The number of threads is $(Threads.nthreads())"
-    # @warn "The number of procs is $(nprocs())"
-    # addprocs(Threads.nthreads())
-    # @warn "The number of procs is $(nprocs())"
-
-    Threads.@threads for i in 1:exp.count
+    for i in 1:exp.count
         optimize(exp.initials[i], exp.algorithms[i])
     end
-    traces
 end
 
 

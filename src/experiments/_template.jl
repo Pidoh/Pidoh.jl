@@ -14,7 +14,7 @@ function template()
     ### -- specify that we want the job to get killed if it exceeds 3 GB per core/slot --
     #BSUB -M 8GB
     ### -- set walltime limit: hh:mm --
-    #BSUB -W 3:00
+    #BSUB -W 4:00
     ### -- set the email address --
     # please uncomment the following line and put in your e-mail address,
     # if you want to receive e-mail notifications on a non-default address

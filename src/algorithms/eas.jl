@@ -103,7 +103,17 @@ end
 SDCounter(n::Integer, r::Real, R::Real) = (n/r)^r*(n/(n-r))^(n-r)*log(Base.MathConstants.e*n*R)
 SDCounterEstimation(n::Integer, r::Real, R::Real) = (Base.MathConstants.e*n/r)^r*log(Base.MathConstants.e*n*R)
 
-thresholds(generator::Function, n::Integer, R::Real) = [generator(n, r, R) for r in 1:ceil(Int,n/2)]
+function thresholds(generator::Function, n::Integer, R::Real)
+    thresh = []
+    for r in 1:ceil(Int,n/2)
+        val = generator(n , r, R)
+        push!(thresh, val)
+        if val >= typemax(Int)/n
+            break
+        end
+    end
+    thresh
+end
 
 function optimize(x, setting::ea1p1SD)
     trace = Trace(setting, x)
@@ -210,7 +220,6 @@ function optimize(x, setting::ea1pλSASD)
             y = copy(x)
             for i in 1:λ
                 α = mutation(x, UniformlyIndependentMutation(r/n))
-
                 if fitness(α) ≥ fitness(y)
                     y = α
                 end
@@ -234,6 +243,65 @@ function optimize(x, setting::ea1pλSASD)
                 println("New rate $r in $g")
                 u = 0
             end
+        end
+    end
+    trace
+end
+
+
+
+struct RLSSDstar <: AbstractEA
+    R :: Real
+    stop :: AbstractStop
+    thresholds :: Array
+    function RLSSDstar(;R::Real=1, stop::AbstractStop=fixedbudget(1000), thresholds=[typemax(Int) for _ in 1:10])
+        new(R, stop, thresholds)
+    end
+end
+
+
+
+RLSSDCounter(n::Integer, r::Real, R::Real) = binomial(n, r)*log(R)
+
+function optimize(x, setting::RLSSDstar)
+    trace = Trace(setting, x)
+    n=length(x)
+    thresholds = setting.thresholds
+    r = 1
+    s = 1
+    u = 0
+    for iter ∈ 1:niterations(setting.stop)
+        y = mutation(x, KBitFlip(s))
+        u += 1
+        # The second condition is for implementing "breaking ties randomly".
+        if fitness(y) > fitness(x)
+            x = y
+            u = 0
+            r = 1
+            s = 1
+            println("New rate", s)
+            println(fitness(x), " in iteration= ", iter)
+            record(trace, y, iter, isoptimum(y))
+            if isoptimum(x)
+                return trace
+            end
+        elseif fitness(y) == fitness(x) && s == 1
+            x = y
+        end
+
+        if u > thresholds[s]
+            if s == 1
+                if r < n/2
+                    r = r+1
+                else
+                    r = n
+                end
+                s = r
+            else
+                s = s-1
+            end
+            println("New rate", s)
+            u = 0
         end
     end
     trace

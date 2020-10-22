@@ -22,8 +22,8 @@ include("trace.jl")
 export Trace, info, record
 
 include("algorithms/algorithms.jl")
-export optimize, ea1pλwith2rates, ea1p1, ea1p1SD, ea1pλSASD
-export SDCounter, SDCounterEstimation, thresholds
+export optimize, ea1pλwith2rates, ea1p1, ea1p1SD, ea1pλSASD, RLSSDstar
+export SDCounter, SDCounterEstimation, RLSSDCounter, thresholds
 export fixedbudget, niterations
 
 include("experiments/experiments.jl")

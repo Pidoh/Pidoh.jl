@@ -45,7 +45,7 @@ function storeresult(trace::Trace)
     date_format = Dates.format(now(), "yyyymmddHHMMSS_s")
     id = trace.seed
 
-    result = Dict("seed"=>trace.seed,"iteration"=>trace.optimum[2], "date"=>date_format)
+    result = Dict("seed"=>trace.seed,"iteration"=>trace.optimum[2], "date"=>date_format , "size"=> trace.individual.problem.n)
 
     for fieldname in realparameters(trace.algorithm)
         push!(result, (string(fieldname)=>getfield(trace.algorithm, fieldname)))
@@ -63,7 +63,7 @@ function storeresult(trace::Trace)
         touch("_results/$csvfilename.csv")
         writeheader = true
     end
-    CSV.write("_results/$csvfilename.csv", result_df, append=true, writeheader=writeheader)
+    CSV.write("_results/$csvfilename.csv", result_df, append=true, header=writeheader)
 end
 
 function info(trace::Trace, text, data)
