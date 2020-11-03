@@ -6,11 +6,6 @@ abstract type AbstractBitstringProblem <: AbstractProblem end
 Fitness function for binary strings.
 ## Examples
 Consider the following example:
-```jldoctest OneMax; setup = :(using Pidoh)
-julia> onemax = OneMax(100);
-julia> fitness(BitArray([true, false, false, false]), onemax)
-1
-```
 """
 struct OneMax <: AbstractBitstringProblem
     n :: Integer
