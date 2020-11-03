@@ -6,7 +6,7 @@ abstract type AbstractBitstringProblem <: AbstractProblem end
 Fitness function for binary strings.
 ## Examples
 Consider the following example:
-```jldoctest PSDCone; setup = :(using JuMP)
+```jldoctest OneMax; setup = :(using Pidoh)
 julia> onemax = OneMax(100);
 julia> fitness(BitArray([true, false, false, false]), onemax)
 1
