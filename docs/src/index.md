@@ -3,10 +3,12 @@ CurrentModule = Pidoh
 ```
 
 # Pidoh
+Profiling Iterative Discrete Optimization Heuristics
 
-```@index
-```
 
-```@autodocs
-Modules = [Pidoh]
+```@contents
+Pages = [
+    "problems.md",
+]
+Depth = 2
 ```

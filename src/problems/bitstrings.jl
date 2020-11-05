@@ -1,11 +1,30 @@
 
 abstract type AbstractBitstringProblem <: AbstractProblem end
 
+function fitness(x::Array{Bool,1}, problem)
+    fitness(BitArray(x), problem)
+end
+
+function fitness(x::BitArray, problem::T, fitnessvalue :: Number, flipsposition) where {T <: AbstractProblem}
+    y = copy(x)
+    for item ∈ flipsposition
+        flip!(y, item)
+    end
+    fitness(y, problem)
+end
 """
     OneMax
 Fitness function for binary strings.
 ## Examples
 Consider the following example:
+```jldoctest objective_function; setup = :(using Pidoh)
+julia> problem = OneMax(4)
+OneMax(4)
+julia> fitness(BitArray([true,true,false,true]), problem)
+3
+julia> optimum(problem)
+4
+```
 """
 struct OneMax <: AbstractBitstringProblem
     n :: Integer
@@ -40,13 +59,7 @@ end
 
 optimum(problem::Jump) = problem.n+problem.jumpsize
 
-function fitness(x::BitArray, problem::T, fitnessvalue :: Number, flipsposition) where {T <: AbstractProblem}
-    y = copy(x)
-    for item ∈ flipsposition
-        flip!(y, item)
-    end
-    fitness(y, problem)
-end
+
 
 # function fitness(x::BitArray, problem::OneMax, fitnessvalue:: Number, flipsposition)
 #     if length(flipsposition) == 0

@@ -279,8 +279,6 @@ function optimize(x, setting::RLSSDstar)
             u = 0
             r = 1
             s = 1
-            println("New rate", s)
-            println(fitness(x), " in iteration= ", iter)
             record(trace, y, iter, isoptimum(y))
             if isoptimum(x)
                 return trace
@@ -300,7 +298,6 @@ function optimize(x, setting::RLSSDstar)
             else
                 s = s-1
             end
-            println("New rate", s)
             u = 0
         end
     end
