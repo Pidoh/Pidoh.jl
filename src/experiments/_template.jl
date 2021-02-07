@@ -2,7 +2,7 @@ function template()
     tpl= mt"""#!/bin/sh
     # embedded options to qsub - start with #PBS
     # -- Name of the job ---
-    #BSUB -J {{name}}
+    #BSUB -J %SERVER_ID
     # �~@~S- specify queue --
     #BSUB -q {{cluster}}
     ### -- ask for number of cores (default: 1) --
@@ -14,7 +14,7 @@ function template()
     ### -- specify that we want the job to get killed if it exceeds 3 GB per core/slot --
     #BSUB -M 8GB
     ### -- set walltime limit: hh:mm --
-    #BSUB -W 4:00
+    #BSUB -W 8:00
     ### -- set the email address --
     # please uncomment the following line and put in your e-mail address,
     # if you want to receive e-mail notifications on a non-default address
@@ -29,6 +29,7 @@ function template()
     #BSUB -e {{{workspace}}}/Error.err
 
     export JULIA_NUM_THREADS={{cores}}
+    export SERVER_ID=$SERVER_ID
 
     {{{command}}}
     """

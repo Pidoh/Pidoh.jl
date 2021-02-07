@@ -1,7 +1,7 @@
 
-struct fixedbudget <: AbstractStop
+struct FixedBudget <: AbstractStop
     budget :: Int
 end
 
 
-niterations(stop::fixedbudget) = stop.budget
+niterations(stop::FixedBudget) = stop.budget

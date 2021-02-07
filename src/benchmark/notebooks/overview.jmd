@@ -1,0 +1,114 @@
+# Requirement
+In this part, the basic requirements are installed.
+
+
+<!-- this setup dependencies, but doesn't appear in the generated document -->
+```julia; echo = false; results = "hidden"
+using Pkg
+Pkg.activate("/Users/amraj/Projects/Pidoh")
+"DataFrames" ∉ keys(Pkg.project().dependencies) && Pkg.add("DataFrames")
+"Plots" ∉ keys(Pkg.project().dependencies) && Pkg.add("Plots")
+"Statistics" ∉ keys(Pkg.project().dependencies) && Pkg.add("Statistics")
+
+using Pidoh
+
+using Plots
+using DataFrames
+using Statistics
+
+experiment = loadexperiment("../data.jld2");
+```
+
+
+# FIR Filter Design
+
+
+We'll implement lowpass, highpass and ' bandpass FIR filters. If
+you want to read more about DSP I highly recommend [The Scientist
+and Engineer's Guide to Digital Signal
+Processing](http://www.dspguide.com/) which is freely available
+online.
+
+
+## Calculating frequency response
+
+
+DSP.jl package doesn't (yet) have a method to calculate the
+the frequency response of a FIR filter so we define it:
+
+```julia
+result = DataFrames.DataFrame()
+
+for job in experiment.jobs
+    trace = job.trace
+      if !isnothing(trace)
+        push!(result, (algorithm=name(trace.algorithm) ,runtime=trace.optimum[2], problem=trace.individual.name, problem_size=length(trace.individual.problem)))
+      end
+    end
+first(result, 10)
+```
+
+## Design Lowpass FIR filter
+
+
+Designing a lowpass FIR filter is very simple to do with DSP.jl, all you
+need to do is to define the window length, cut off frequency and the
+window. We will define a lowpass filter with cut off frequency at 5Hz for a signal
+sampled at 20 Hz.
+We will use the Hamming window, which is defined as:
+$w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
+
+```julia
+data = result
+sort!(data, (:problem_size))
+algorithms = keys(groupby(data, "algorithm"))
+problems = keys(groupby(data, "problem"))
+plts = []
+
+for problem in problems
+    append!(plts, [plot()])
+    for algo in algorithms
+        classical_0 = filter(row -> row["algorithm"]==algo[1] && row["problem"]==problem[1], data)
+        classical_0 = combine(groupby(classical_0, :problem_size), :runtime => mean)
+        y = classical_0[!,:runtime_mean]
+        x = classical_0[!,:problem_size]
+        # v = classical_0[!,4]
+        plot!(plts[end], x, y, fillalpha=0.5, dpi=50,
+        fontfamily="sans-serif",legend=:topleft, linewidth = 2,
+        markersize=3, markershape=:circle,linealpha = 0.5, size=(300,300),
+        label = algo[1], xlabel="Number of vertices (n)", xticks=unique(classical_0[!,:problem_size]))
+    end
+    display(problem[1])
+    display(plot(plts[end]))
+    savefig(plts[end], "./plot$(problem[1]).png")
+end
+```
+
+
+```julia
+using HypothesisTests
+data = result
+sort!(data, (:problem_size))
+algorithms = keys(groupby(data, "algorithm"))
+problems = keys(groupby(data, "problem"))
+problem_size = keys(groupby(df, :problem_size))
+
+for problem in problems
+        display(problem[1])
+    for item in problem_size
+        println("Problem Size: ", item["problem_size"])
+        data2 = groupby(filter(row-> row["problem"]==problem[1] && row["problem_size"]==item["problem_size"], df), :algorithm)
+        for item in data2
+            for item2 in data2
+
+                p_value =  pvalue(MannWhitneyUTest(item["runtime"], item2["runtime"]))
+                s = 0
+                if p_value > 0.01
+                    s = 1
+                end
+                println(s, "Pvalue = ", round(p_value;digits=5), " for ", item[1][1]," vs ", item2[1][1])
+            end
+        end
+    end
+end
+```

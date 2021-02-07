@@ -1,6 +1,9 @@
 
 abstract type AbstractBitstringProblem <: AbstractProblem end
 
+import Base: length
+
+
 function fitness(x::Array{Bool,1}, problem)
     fitness(BitArray(x), problem)
 end
@@ -20,10 +23,13 @@ Consider the following example:
 ```jldoctest objective_function; setup = :(using Pidoh)
 julia> problem = OneMax(4)
 OneMax(4)
+
 julia> fitness(BitArray([true,true,false,true]), problem)
 3
+
 julia> optimum(problem)
 4
+
 ```
 """
 struct OneMax <: AbstractBitstringProblem
@@ -31,6 +37,7 @@ struct OneMax <: AbstractBitstringProblem
 end
 fitness(x::BitArray, problem::OneMax) = sum(x)
 optimum(problem::OneMax) = problem.n
+length(problem::OneMax) = problem.n
 
 struct ZeroMax <: AbstractBitstringProblem
     n :: Integer
@@ -58,7 +65,7 @@ function fitness(x::BitArray, problem::Jump)
 end
 
 optimum(problem::Jump) = problem.n+problem.jumpsize
-
+length(problem::Jump) = problem.n
 
 
 # function fitness(x::BitArray, problem::OneMax, fitnessvalue:: Number, flipsposition)

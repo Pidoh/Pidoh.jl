@@ -1,5 +1,7 @@
 
-println("HELLO")
+println("HELLO from ", ENV["SERVER_ID"])
+
+server_id = parse(Int64, ENV["SERVER_ID"])
 
 using Logging
 
@@ -12,8 +14,9 @@ Pkg.activate(".")
 Pkg.instantiate()
 
 using Pidoh
-using JLD
-data = load("data.jld")
-exp = data["Experiment"]
+using LightGraphs, SimpleWeightedGraphs
+using SparseArrays
 
-run(exp)
+
+experiment = loadexperiment("./data.jld2")
+run(experiment, server_id)

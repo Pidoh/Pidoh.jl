@@ -8,7 +8,6 @@ mutable struct Trace
     algorithm :: AbstractAlgorithm
     individual :: Instance
     rows:: DataFrames.DataFrame
-
     optimum:: NamedTuple{(:individual,:iteration),Tuple{Any, Int64}}
 
     function Trace(
@@ -45,7 +44,13 @@ function storeresult(trace::Trace)
     date_format = Dates.format(now(), "yyyymmddHHMMSS_s")
     id = trace.seed
 
-    result = Dict("seed"=>trace.seed,"iteration"=>trace.optimum[2], "date"=>date_format , "size"=> trace.individual.problem.n)
+    result = Dict(
+    "date"=>date_format ,
+    "algorithm"=>string(typeof(trace.algorithm)),
+    "size"=> length(trace.individual.problem),
+    "iteration"=>trace.optimum[2],
+    "seed"=>trace.seed
+    )
 
     for fieldname in realparameters(trace.algorithm)
         push!(result, (string(fieldname)=>getfield(trace.algorithm, fieldname)))
@@ -56,14 +61,17 @@ function storeresult(trace::Trace)
     # CSV.write("results/rows.csv", db.rows_df, append=true)
     csvfilename = string(typeof(trace.algorithm))
     writeheader = false
-    if ! ispath("_results")
-        mkdir("_results")
+    rlock = Threads.Condition()
+    lock(rlock)
+    if ! ispath("results")
+        mkdir("results")
     end
-    if ! ispath("_results/$csvfilename.csv")
-        touch("_results/$csvfilename.csv")
+    if ! ispath("results/$csvfilename.csv")
+        touch("results/$csvfilename.csv")
         writeheader = true
     end
-    CSV.write("_results/$csvfilename.csv", result_df, append=true, header=writeheader)
+    CSV.write("results/$csvfilename.csv", result_df, append=true, header=writeheader)
+    unlock(rlock)
 end
 
 function info(trace::Trace, text, data)
@@ -71,7 +79,6 @@ function info(trace::Trace, text, data)
 end
 
 function optimumfound(trace::Trace, x::Instance, iteration::Int64)
-    trace.optimum = (individual=x.individual, iteration=iteration)
     storeresult(trace)
 end
 
@@ -79,7 +86,7 @@ function record(db::Trace, x::Instance, iteration::Int64, isoptimum::Bool = fals
     tuple = (iteration=iteration, fitness=fitness(x))
     info(db, "New row is inserted.", tuple )
     push!(db.rows, (iteration=iteration, fitness=fitness(x)))
-
+    db.optimum = (individual=x.individual, iteration=iteration)
     isoptimum && optimumfound(db, x, iteration)
 end
 
