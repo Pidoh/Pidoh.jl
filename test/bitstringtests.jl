@@ -34,10 +34,10 @@ end
 
 ins1 = Instance(BitArray([true,true,false]), OneMax(3))
 
-@testset "UniformlyIndependentMutation mutation positions" begin
-    @test mutationpositions(ins1,UniformlyIndependentMutation(0.0)) == []
-    @test mutationpositions(ins1,UniformlyIndependentMutation(1.0)) == Array(1:length(ins1))
-end
+# @testset "UniformlyIndependentMutation mutation positions" begin
+#     @test mutationpositions(ins1,UniformlyIndependentMutation(0.0)) == []
+#     @test mutationpositions(ins1,UniformlyIndependentMutation(1.0)) == Array(1:length(ins1))
+# end
 
 @testset "UniformlyIndependentMutation mutation" begin
     @test mutation(ins1,UniformlyIndependentMutation(0.0)).individual == ins1.individual
