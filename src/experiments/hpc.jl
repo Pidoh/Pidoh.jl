@@ -60,7 +60,7 @@ function fetchresults(exp::Experiment, hpc::HPC)
         mkdir(hpcresult)
     end
 
-    run(`scp -r "amraj@login2.hpc.dtu.dk:~/"$workspace/* $hpcresult`)
+    run(`scp -r $workspace"/." $(hpc.user)"@"$(hpc.server)":~/"$workspace"/*" $hpcresult`)
     @info "The results folder is downloaded in $hpcresult."
 end
 

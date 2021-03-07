@@ -12,29 +12,6 @@ struct UniformlyIndependentMutation <: Mutation
     probability :: Real
 end
 
-function mutationpositions(x::Instance, mut::UniformlyIndependentMutation)
-    positions :: Array{Int64,1} = []
-    for bit in 1:length(x)
-        if rand() < mut.probability
-            push!(positions, bit)
-        end
-    end
-    positions
-end
-
-
-function mutation(x::Instance, mut::UniformlyIndependentMutation)
-    positions = mutationpositions(x, mut)
-    length(positions) == 0 && return x
-
-    y = copy(x.individual)
-    for bit ∈ positions
-        flip!(y,bit)
-    end
-
-    Instance(y, x.problem, fitnessvalue=fitness(x,positions))
-end
-# sa
 
 function uiimutationpositions(x::Instance, probability::Real)
     if probability == 0
@@ -65,7 +42,6 @@ function mutation(x::Instance, mut::UniformlyIndependentMutation)
     end
     Instance(y, x.problem, fitnessvalue=fitness(x,positions))
 end
-# sa
 
 
 struct KBitFlip <: Mutation
