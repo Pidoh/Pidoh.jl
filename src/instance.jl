@@ -8,7 +8,7 @@ Solution instance
 Consider the following example:
 ```jldoctest objective_function; setup = :(using Pidoh)
 julia> x = Instance(BitArray([true,true,false,true]), OneMax(4))
-Instance(Bool[1, 1, 0, 1], OneMax(4), 3)
+Instance(Bool[1, 1, 0, 1], OneMax(4), nothing, 3, L"$problem$")
 
 julia> fitness(x)
 3
