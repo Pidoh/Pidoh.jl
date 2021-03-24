@@ -4,18 +4,19 @@ using Random
 using Dates
 
 mutable struct Trace
-    seed
-    algorithm :: AbstractAlgorithm
-    individual :: Instance
-    rows:: DataFrames.DataFrame
-    optimum:: NamedTuple{(:individual,:iteration),Tuple{Any, Int64}}
+    seed::Any
+    algorithm::AbstractAlgorithm
+    individual::Instance
+    rows::DataFrames.DataFrame
+    optimum::NamedTuple{(:individual, :iteration),Tuple{Any,Int64}}
 
     function Trace(
-            algorithm::AbstractAlgorithm,
-            individual::Instance;
-            seed::Int64=ceil(Int64, time()*10e6),
-            rows::DataFrames.DataFrame=DataFrames.DataFrame(),
-            optimum=(individual=missing, iteration=-1))
+        algorithm::AbstractAlgorithm,
+        individual::Instance;
+        seed::Int64 = ceil(Int64, time() * 10e6),
+        rows::DataFrames.DataFrame = DataFrames.DataFrame(),
+        optimum = (individual = missing, iteration = -1),
+    )
         new(seed, algorithm, individual, rows, optimum)
     end
 end
@@ -30,7 +31,7 @@ end
 # end
 #
 
-function realparameters(algorithm::T) where {T<: AbstractAlgorithm}
+function realparameters(algorithm::T) where {T<:AbstractAlgorithm}
     realfields = []
     for fieldname in fieldnames(typeof(algorithm))
         if typeof(getfield(algorithm, fieldname)) <: Real
@@ -45,15 +46,15 @@ function storeresult(trace::Trace)
     id = trace.seed
 
     result = Dict(
-    "date"=>date_format ,
-    "algorithm"=>string(typeof(trace.algorithm)),
-    "size"=> length(trace.individual.problem),
-    "iteration"=>trace.optimum[2],
-    "seed"=>trace.seed
+        "date" => date_format,
+        "algorithm" => string(typeof(trace.algorithm)),
+        "size" => length(trace.individual.problem),
+        "iteration" => trace.optimum[2],
+        "seed" => trace.seed,
     )
 
     for fieldname in realparameters(trace.algorithm)
-        push!(result, (string(fieldname)=>getfield(trace.algorithm, fieldname)))
+        push!(result, (string(fieldname) => getfield(trace.algorithm, fieldname)))
     end
 
     result_df = DataFrame(result)
@@ -63,19 +64,19 @@ function storeresult(trace::Trace)
     writeheader = false
     rlock = Threads.Condition()
     lock(rlock)
-    if ! ispath("results")
+    if !ispath("results")
         mkdir("results")
     end
-    if ! ispath("results/$csvfilename.csv")
+    if !ispath("results/$csvfilename.csv")
         touch("results/$csvfilename.csv")
         writeheader = true
     end
-    CSV.write("results/$csvfilename.csv", result_df, append=true, header=writeheader)
+    CSV.write("results/$csvfilename.csv", result_df, append = true, header = writeheader)
     unlock(rlock)
 end
 
 function info(trace::Trace, text, data)
- @debug text data...
+    @debug text data...
 end
 
 function optimumfound(trace::Trace, x::Instance, iteration::Int64)
@@ -83,10 +84,10 @@ function optimumfound(trace::Trace, x::Instance, iteration::Int64)
 end
 
 function record(db::Trace, x::Instance, iteration::Int64, isoptimum::Bool = false)
-    tuple = (iteration=iteration, fitness=fitness(x))
-    info(db, "New row is inserted.", tuple )
-    push!(db.rows, (iteration=iteration, fitness=fitness(x)))
-    db.optimum = (individual=x.individual, iteration=iteration)
+    tuple = (iteration = iteration, fitness = fitness(x))
+    info(db, "New row is inserted.", tuple)
+    push!(db.rows, (iteration = iteration, fitness = fitness(x)))
+    db.optimum = (individual = x.individual, iteration = iteration)
     isoptimum && optimumfound(db, x, iteration)
 end
 

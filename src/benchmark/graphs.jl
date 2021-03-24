@@ -8,9 +8,16 @@ function visualize(g, gcolour)
 
 
     edge_labels = map(e -> string(adjacency_matrix(g)[dst(e), src(e)]), edges(g))
-    edge_colors = map(e -> e ∈ edges(gcolour) ? colorant"red" : colorant"lightgrey", edges(g))
+    edge_colors =
+        map(e -> e ∈ edges(gcolour) ? colorant"red" : colorant"lightgrey", edges(g))
 
-    gplot(g,layout=circular_layout, nodelabel=vertices(g), edgelabel=edge_labels, edgestrokec=edge_colors)
+    gplot(
+        g,
+        layout = circular_layout,
+        nodelabel = vertices(g),
+        edgelabel = edge_labels,
+        edgestrokec = edge_colors,
+    )
 end
 
 function visualize(g)
@@ -20,5 +27,5 @@ function visualize(g)
 
     edge_labels = map(e -> string(adjacency_matrix(g)[dst(e), src(e)]), edges(g))
 
-    gplot(g,layout=circular_layout, nodelabel=vertices(g), edgelabel=edge_labels)
+    gplot(g, layout = circular_layout, nodelabel = vertices(g), edgelabel = edge_labels)
 end

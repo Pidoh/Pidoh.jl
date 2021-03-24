@@ -5,7 +5,7 @@ n = 10
 ind1 = bitrand(n)
 ins1 = Instance(ind1, OneMax(10))
 
-ins2 = copy(ins1, fitnessvalue=-1)
+ins2 = copy(ins1, fitnessvalue = -1)
 
 
 @testset "Instance functions" begin

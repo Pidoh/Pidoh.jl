@@ -18,40 +18,53 @@ julia> optimum(x)
 ```
 """
 struct Instance
-    individual
-    problem :: AbstractProblem
-    generator :: Union{Nothing, AbstractIP}
-    fitnessvalue :: Number
-    name:: LaTeXString
+    individual::Any
+    problem::AbstractProblem
+    generator::Union{Nothing,AbstractIP}
+    fitnessvalue::Number
+    name::LaTeXString
 
-    function Instance(individual, problem::AbstractProblem; generator::Union{Nothing, AbstractIP}=nothing, fitnessvalue::Number=-1, name:: LaTeXString=L"problem")
+    function Instance(
+        individual,
+        problem::AbstractProblem;
+        generator::Union{Nothing,AbstractIP} = nothing,
+        fitnessvalue::Number = -1,
+        name::LaTeXString = L"problem",
+    )
         if fitnessvalue == -1
-            fitnessvalue=fitness( individual, problem)
+            fitnessvalue = fitness(individual, problem)
         end
         new(individual, problem, generator, fitnessvalue, name)
     end
 
-    function Instance(problem::AbstractProblem; generator::Union{Nothing, AbstractIP}=nothing, individual=nothing, fitnessvalue::Number=-1, name:: LaTeXString=L"problem")
-        if ! isnothing(individual) && fitnessvalue == -1
-            fitnessvalue=fitness( individual, problem)
+    function Instance(
+        problem::AbstractProblem;
+        generator::Union{Nothing,AbstractIP} = nothing,
+        individual = nothing,
+        fitnessvalue::Number = -1,
+        name::LaTeXString = L"problem",
+    )
+        if !isnothing(individual) && fitnessvalue == -1
+            fitnessvalue = fitness(individual, problem)
         end
         new(individual, problem, generator, fitnessvalue, name)
     end
 end
 
 fitness(instance::Instance) = instance.fitnessvalue
-fitness(instance::Instance, flippositions) = fitness(instance.individual, instance.problem, instance.fitnessvalue, flippositions)
+fitness(instance::Instance, flippositions) =
+    fitness(instance.individual, instance.problem, instance.fitnessvalue, flippositions)
 optimum(instance::Instance) = optimum(instance.problem)
 isoptimum(instance::Instance) = fitness(instance) == optimum(instance)
 length(instance::Instance) = length(instance.individual)
 
 function initial(instance::Instance)
     ind = generate(instance.generator)
-    if ! isnothing(instance.generator)
-        return Instance(instance.problem, individual=ind)
+    if !isnothing(instance.generator)
+        return Instance(instance.problem, individual = ind)
     end
 end
 
-function copy(instance::Instance; fitnessvalue::Number=fitness(instance))
-    Instance(instance.individual,instance.problem, fitnessvalue=fitnessvalue )
+function copy(instance::Instance; fitnessvalue::Number = fitness(instance))
+    Instance(instance.individual, instance.problem, fitnessvalue = fitnessvalue)
 end
