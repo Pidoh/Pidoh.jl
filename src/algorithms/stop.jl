@@ -1,6 +1,6 @@
 
 struct FixedBudget <: AbstractStop
-    budget :: Int
+    budget::Int
 end
 
 

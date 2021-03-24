@@ -7,13 +7,14 @@ struct HPC
     user::String
     cores::Integer
     jobs::Integer
-    function HPC(server::String, user::String, cores::Integer=2, jobs::Integer=2)
+    function HPC(server::String, user::String, cores::Integer = 2, jobs::Integer = 2)
         new(server, user, cores, jobs)
     end
 end
 
 
-sshcommand(hpc::HPC, command::String) = run(`ssh $(hpc.user)"@"$(hpc.server) "source /etc/profile;" $command`)
+sshcommand(hpc::HPC, command::String) =
+    run(`ssh $(hpc.user)"@"$(hpc.server) "source /etc/profile;" $command`)
 
 function createworkspaceinserver(exp::Experiment, hpc::HPC)
     name = exp.name
@@ -31,17 +32,18 @@ function createtasktemplate(exp::Experiment, hpc::HPC)
     home_directory = home_directory[1:end-1] # To remove '\n'
     workspace = exp.workspace
     tpl = template()
-    data= Dict(
-    "name" => exp.name,
-    "workspace" => "$home_directory/$workspace",
-    "cores" => hpc.cores,
-    "cluster" => "compute",
-    "command" => "julia $home_directory/$workspace/main.jl --project=$home_directory/$workspace"
+    data = Dict(
+        "name" => exp.name,
+        "workspace" => "$home_directory/$workspace",
+        "cores" => hpc.cores,
+        "cluster" => "compute",
+        "command" =>
+            "julia $home_directory/$workspace/main.jl --project=$home_directory/$workspace",
     )
     rendered = render(tpl, data)
     open("$workspace/job.sh", "w") do io
-           write(io, rendered)
-       end;
+        write(io, rendered)
+    end
 end
 
 function submitjob(exp::Experiment, hpc::HPC)
@@ -55,8 +57,8 @@ end
 
 function fetchresults(exp::Experiment, hpc::HPC)
     workspace = exp.workspace
-    hpcresult = workspace*"/hpc-"*hpc.server
-    if ! ispath(hpcresult)
+    hpcresult = workspace * "/hpc-" * hpc.server
+    if !ispath(hpcresult)
         mkdir(hpcresult)
     end
 
@@ -65,7 +67,7 @@ function fetchresults(exp::Experiment, hpc::HPC)
 end
 
 function fetch(exp::Experiment, hpc::HPC)
-    s = sshcommand(hpc,"bstat")
+    s = sshcommand(hpc, "bstat")
     if success(s)
         @capture_out s
     end

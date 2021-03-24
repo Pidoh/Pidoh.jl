@@ -35,4 +35,4 @@ end
 
 
 
- mst_value(g)= sum([g.weights[src(edge), dst(edge)] for edge in prim_mst(g)])
+mst_value(g) = sum([g.weights[src(edge), dst(edge)] for edge in prim_mst(g)])

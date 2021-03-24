@@ -11,49 +11,58 @@ import Base: run, length
 
 mutable struct Job
     jobid::UUID
-    algorithm:: AbstractAlgorithm
-    instance:: Instance
-    trace:: Union{Trace, Nothing}
-    status:: JobStatus
-    startdate:: Union{DateTime, Nothing}
-    finishdate:: Union{DateTime, Nothing}
-    threadid:: Union{Int64, Nothing}
-    serverid :: Union{Int64, Nothing}
+    algorithm::AbstractAlgorithm
+    instance::Instance
+    trace::Union{Trace,Nothing}
+    status::JobStatus
+    startdate::Union{DateTime,Nothing}
+    finishdate::Union{DateTime,Nothing}
+    threadid::Union{Int64,Nothing}
+    serverid::Union{Int64,Nothing}
 
 
-    function Job(algorithm:: AbstractAlgorithm, instance:: Instance;
-        jobid::UUID=uuid4(),
-        trace:: Union{Trace, Nothing} = nothing,
-        status:: JobStatus=pending,
-        startdate::Union{DateTime, Nothing}=nothing,
-        finishdate::Union{DateTime, Nothing}=nothing,
-        threadid::Union{Int64, Nothing}=nothing,
-        serverid::Union{Int64, Nothing}=nothing)
-        new(jobid,algorithm, instance, trace, status, startdate, finishdate, serverid)
+    function Job(
+        algorithm::AbstractAlgorithm,
+        instance::Instance;
+        jobid::UUID = uuid4(),
+        trace::Union{Trace,Nothing} = nothing,
+        status::JobStatus = pending,
+        startdate::Union{DateTime,Nothing} = nothing,
+        finishdate::Union{DateTime,Nothing} = nothing,
+        threadid::Union{Int64,Nothing} = nothing,
+        serverid::Union{Int64,Nothing} = nothing,
+    )
+        new(jobid, algorithm, instance, trace, status, startdate, finishdate, serverid)
     end
 end
 
 
 struct Experiment
-    name :: String
-    jobs:: Array{Job,1}
+    name::String
+    jobs::Array{Job,1}
     workspace::String
 
-    function Experiment(name::String, algorithms::Array{T,1}, instances::Array{Instance,1}; repeat::Integer=1) where T <: AbstractAlgorithm
+    function Experiment(
+        name::String,
+        algorithms::Array{T,1},
+        instances::Array{Instance,1};
+        repeat::Integer = 1,
+    ) where {T<:AbstractAlgorithm}
         if length(algorithms) ≠ length(instances)
             error("The number of algorithms is not match with the number of initials.")
         end
 
         if !ispath("_workspace/$(name)")
             workspace = "_workspace/$(name)"
-        elseif !ispath("_workspace/$(name)_"*Dates.format(now(), "SS"))
+        elseif !ispath("_workspace/$(name)_" * Dates.format(now(), "SS"))
 
-            workspace = "_workspace/$(name)_"*Dates.format(now(), "SS")
+            workspace = "_workspace/$(name)_" * Dates.format(now(), "SS")
         else
-            workspace = "_workspace/$(name)_"*Dates.format(now(), "mmddHHMMSS")
+            workspace = "_workspace/$(name)_" * Dates.format(now(), "mmddHHMMSS")
         end
 
-        jobs = [Job(algorithms[i], instances[i]) for j in 1:repeat for i in 1:length(algorithms)]
+        jobs =
+            [Job(algorithms[i], instances[i]) for j = 1:repeat for i = 1:length(algorithms)]
         obj = new(name, jobs, workspace)
         mkworkspace(obj)
         return obj
@@ -76,15 +85,18 @@ function mergeexperiments(path::String)
     println(jld2files)
     experiments = loadexperiment.(jld2files)
     experiment = experiments[1]
-    for jobindex in 1:length(experiment.jobs)
+    for jobindex = 1:length(experiment.jobs)
         job = experiment.jobs[jobindex]
         if job.status != finished
             println(job.jobid)
             for exp in experiments[2:end]
-                jj = findfirst(row->row.jobid==job.jobid && row.status == finished, exp.jobs)
+                jj = findfirst(
+                    row -> row.jobid == job.jobid && row.status == finished,
+                    exp.jobs,
+                )
                 if !isnothing(jj)
                     jobcandidate = exp.jobs[jj]
-                    println( jobcandidate.serverid, jobcandidate.status)
+                    println(jobcandidate.serverid, jobcandidate.status)
                     experiment.jobs[jobindex] = exp.jobs[jj]
                     break
                 end
@@ -92,7 +104,7 @@ function mergeexperiments(path::String)
         end
     end
     date = Dates.format(now(), "mmddHHMMSSs")
-    saveexperiment(path*"/merged_data-$(date).jld2", experiment)
+    saveexperiment(path * "/merged_data-$(date).jld2", experiment)
     experiment
 end
 
@@ -122,7 +134,7 @@ function run(job::Job)
     @info("The job finished.")
 end
 
-function run(exp::Experiment, serverid::Int64=0, shuffle::Bool=true)
+function run(exp::Experiment, serverid::Int64 = 0, shuffle::Bool = true)
     queue = collect(1:length(exp))
     if shuffle
         shuffle!(queue)
@@ -154,7 +166,7 @@ function run(exp::Experiment, hpc::HPC)
     updateworkspace(exp)
 
     createtasktemplate(exp, hpc)
-    createworkspaceinserver(exp,hpc)
+    createworkspaceinserver(exp, hpc)
     submitjob(exp, hpc)
     println(exp.workspace)
     return hpc
@@ -166,10 +178,10 @@ function mkworkspace(exp::Experiment)
     name = exp.name
     workspace = exp.workspace
 
-    if ! ispath(workspace)
+    if !ispath(workspace)
         mkpath(workspace)
     end
-    if ! ispath("$(workspace)/results")
+    if !ispath("$(workspace)/results")
         mkpath("$(workspace)/results")
     end
 
@@ -177,23 +189,23 @@ function mkworkspace(exp::Experiment)
     # jldopen(workspace*"/data.jld2", "w") do file
     #     file["experiment"] = exp
     # end
-    saveexperiment(workspace*"/data.jld2", exp)
+    saveexperiment(workspace * "/data.jld2", exp)
 
     # save(workspace*"/results/data-initial.jld2", Dict("experiment"=>exp))
     # jldopen(workspace*"/results/data-initial.jld2", "w") do file
     #     file["experiment"] = exp
     # end
-    saveexperiment(workspace*"/results/data-initial.jld2", exp)
+    saveexperiment(workspace * "/results/data-initial.jld2", exp)
 
-    cp("src/experiments/_main.jl", workspace*"/main.jl")
-    cp("Project.toml", workspace*"/Project.toml")
+    cp("src/experiments/_main.jl", workspace * "/main.jl")
+    cp("Project.toml", workspace * "/Project.toml")
 end
 
 function updateworkspace(exp::Experiment)
     name = exp.name
     workspace = exp.workspace
     date = Dates.format(now(), "mmddHHMMSSs")
-    if ! ispath(workspace)
+    if !ispath(workspace)
         workspace = "."
     end
 
@@ -201,12 +213,12 @@ function updateworkspace(exp::Experiment)
     # jldopen(workspace*"/data.jld2", "w") do file
     #     file["experiment"] = exp
     # end
-    saveexperiment(workspace*"/data.jld2", exp)
+    saveexperiment(workspace * "/data.jld2", exp)
     # FileIO.save(workspace*"/results/data-$(date).jld2", Dict("experiment"=>exp))
     # jldopen(workspace*"/results/data-$(date).jld2", "w") do file
     #     file["experiment"] = exp
     # end
-    saveexperiment(workspace*"/results/data-$(date).jld2", exp)
+    saveexperiment(workspace * "/results/data-$(date).jld2", exp)
 end
 
 

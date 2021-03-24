@@ -4,31 +4,35 @@ using LaTeXStrings
 using DataFrames
 
 struct ea1pλwith2rates <: AbstractEA
-    λ :: Integer
-    stop :: AbstractStop
-    name :: LaTeXString
-    function ea1pλwith2rates(;λ::Integer=10, stop::AbstractStop=FixedBudget(1000), name :: LaTeXString=L"(1+λ)EA with 2 rates")
+    λ::Integer
+    stop::AbstractStop
+    name::LaTeXString
+    function ea1pλwith2rates(;
+        λ::Integer = 10,
+        stop::AbstractStop = FixedBudget(1000),
+        name::LaTeXString = L"(1+λ)EA with 2 rates",
+    )
         new(λ, stop, name)
     end
 end
 
 function optimize(x, setting::ea1pλwith2rates)
-    λ=setting.λ
+    λ = setting.λ
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     # bitrand returns a random bit string.
     r = 2
 
     for iter ∈ 1:niterations(setting.stop)
         α = copy(x)
         rα = r
-        for i in 1:λ
-            if i ≤ λ/2
-                ry = r/(2n)
+        for i = 1:λ
+            if i ≤ λ / 2
+                ry = r / (2n)
                 y = mutation(x, UniformlyIndependentMutation(ry))
             else
-                ry = 2r/n
+                ry = 2r / n
                 y = mutation(x, UniformlyIndependentMutation(ry))
             end
 
@@ -53,18 +57,26 @@ function optimize(x, setting::ea1pλwith2rates)
         if rand() < 0.5
             r = rα
         else
-            r = if (rand() < 0.5)  r = r/2  else  r = 2r  end
+            r = if (rand() < 0.5)
+                r = r / 2
+            else
+                r = 2r
+            end
         end
-        r = min(max(r,2),n/4)
+        r = min(max(r, 2), n / 4)
     end
     trace
 end
 
 struct ea1p1 <: AbstractEA
-    mutation :: Mutation
-    stop :: AbstractStop
-    name :: LaTeXString
-    function ea1p1(; stop::AbstractStop=FixedBudget(1000), mutation::Mutation=UniformlyIndependentMutation(0.5), name::LaTeXString=L"(1+1)EA")
+    mutation::Mutation
+    stop::AbstractStop
+    name::LaTeXString
+    function ea1p1(;
+        stop::AbstractStop = FixedBudget(1000),
+        mutation::Mutation = UniformlyIndependentMutation(0.5),
+        name::LaTeXString = L"(1+1)EA",
+    )
         new(mutation, stop, name)
     end
 end
@@ -72,7 +84,7 @@ end
 function optimize(x, setting::ea1p1)
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     # bitrand returns a random bit string.
 
     for iter ∈ 1:niterations(setting.stop)
@@ -99,25 +111,31 @@ function optimize(x, setting::ea1p1)
 end
 
 struct ea1p1SD <: AbstractEA
-    R :: Real
-    stop :: AbstractStop
-    thresholds :: Array
-    function ea1p1SD(;R::Real=1, stop::AbstractStop=FixedBudget(1000), thresholds=[typemax(Int) for _ in 1:10])
+    R::Real
+    stop::AbstractStop
+    thresholds::Array
+    function ea1p1SD(;
+        R::Real = 1,
+        stop::AbstractStop = FixedBudget(1000),
+        thresholds = [typemax(Int) for _ = 1:10],
+    )
         new(R, stop, thresholds)
     end
 end
 
 
 
-SDCounter(n::Integer, r::Real, R::Real) = (n/r)^r*(n/(n-r))^(n-r)*log(Base.MathConstants.e*n*R)
-SDCounterEstimation(n::Integer, r::Real, R::Real) = (Base.MathConstants.e*n/r)^r*log(Base.MathConstants.e*n*R)
+SDCounter(n::Integer, r::Real, R::Real) =
+    (n / r)^r * (n / (n - r))^(n - r) * log(Base.MathConstants.e * n * R)
+SDCounterEstimation(n::Integer, r::Real, R::Real) =
+    (Base.MathConstants.e * n / r)^r * log(Base.MathConstants.e * n * R)
 
 function threshold_gen(generator::Function, n::Integer, R::Real)
     thresh = []
-    for r in 1:ceil(Int,n)
-        val = generator(n , r, R)
+    for r = 1:ceil(Int, n)
+        val = generator(n, r, R)
         push!(thresh, val)
-        if val >= typemax(Int)/n
+        if val >= typemax(Int) / n
             break
         end
     end
@@ -127,12 +145,12 @@ end
 function optimize(x, setting::ea1p1SD)
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     thresholds = setting.thresholds
     r = 1
     u = 0
     for iter ∈ 1:niterations(setting.stop)
-        y = mutation(x, UniformlyIndependentMutation(r//n))
+        y = mutation(x, UniformlyIndependentMutation(r // n))
         u += 1
         # The second condition is for implementing "breaking ties randomly".
         if fitness(y) > fitness(x)
@@ -151,7 +169,7 @@ function optimize(x, setting::ea1p1SD)
         end
 
         if u > thresholds[r]
-            r = min(r+1, ceil(Int,n/2))
+            r = min(r + 1, ceil(Int, n / 2))
             # println("New rate", r)
             u = 0
         end
@@ -160,11 +178,16 @@ function optimize(x, setting::ea1p1SD)
 end
 
 struct ea1pλSASD <: AbstractEA
-    R :: Real
-    λ :: Integer
-    stop :: AbstractStop
-    thresholds :: Array
-    function ea1pλSASD(;R::Real=1, λ:: Integer = 10, stop::AbstractStop=FixedBudget(1000), thresholds=[typemax(Int) for _ in 1:10])
+    R::Real
+    λ::Integer
+    stop::AbstractStop
+    thresholds::Array
+    function ea1pλSASD(;
+        R::Real = 1,
+        λ::Integer = 10,
+        stop::AbstractStop = FixedBudget(1000),
+        thresholds = [typemax(Int) for _ = 1:10],
+    )
         new(R, λ, stop, thresholds)
     end
 end
@@ -172,9 +195,9 @@ end
 function optimize(x, setting::ea1pλSASD)
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     thresholds = setting.thresholds
-    λ=setting.λ
+    λ = setting.λ
     r_init = 2
     r = r_init
     u = 0
@@ -185,12 +208,12 @@ function optimize(x, setting::ea1pλSASD)
         if g == false
             y = copy(x)
             ry = r
-            for i in 1:λ
-                if i ≤ λ/2
-                    rα = r/(2n)
+            for i = 1:λ
+                if i ≤ λ / 2
+                    rα = r / (2n)
                     α = mutation(x, UniformlyIndependentMutation(rα))
                 else
-                    rα = 2r/n
+                    rα = 2r / n
                     α = mutation(x, UniformlyIndependentMutation(rα))
                 end
 
@@ -215,11 +238,15 @@ function optimize(x, setting::ea1pλSASD)
             if rand() < 0.5
                 r = ry
             else
-                r = if (rand() < 0.5)  r = r/2  else  r = 2r  end
+                r = if (rand() < 0.5)
+                    r = r / 2
+                else
+                    r = 2r
+                end
             end
-            r = floor(Int,min(max(r,2),n/4))
+            r = floor(Int, min(max(r, 2), n / 4))
 
-            if u > thresholds[1]/λ
+            if u > thresholds[1] / λ
                 r = 2
                 # println("New rate $r in $g")
                 # println("STAG detection.")
@@ -229,8 +256,8 @@ function optimize(x, setting::ea1pλSASD)
 
         else
             y = copy(x)
-            for i in 1:λ
-                α = mutation(x, UniformlyIndependentMutation(r/n))
+            for i = 1:λ
+                α = mutation(x, UniformlyIndependentMutation(r / n))
                 if fitness(α) ≥ fitness(y)
                     y = α
                 end
@@ -249,8 +276,8 @@ function optimize(x, setting::ea1pλSASD)
                 end
             end
 
-            if u > thresholds[r]/λ
-                r = min(r+1, ceil(Int,n/2))
+            if u > thresholds[r] / λ
+                r = min(r + 1, ceil(Int, n / 2))
                 # println("New rate $r in $g")
                 u = 0
             end
@@ -262,22 +289,26 @@ end
 
 
 struct RLSSDstar <: AbstractEA
-    R :: Real
-    stop :: AbstractStop
-    name :: LaTeXString
-    function RLSSDstar(;R::Real=1, stop::AbstractStop=FixedBudget(1000), name :: LaTeXString=L"SD-RLS^r")
+    R::Real
+    stop::AbstractStop
+    name::LaTeXString
+    function RLSSDstar(;
+        R::Real = 1,
+        stop::AbstractStop = FixedBudget(1000),
+        name::LaTeXString = L"SD-RLS^r",
+    )
         new(R, stop, name)
     end
 end
 
 
 
-RLSSDCounter(n::Integer, r::Real, R::Real) = binomial(n, r)*log(R)
+RLSSDCounter(n::Integer, r::Real, R::Real) = binomial(n, r) * log(R)
 
 function optimize(x, setting::RLSSDstar)
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     thresholds = threshold_gen(RLSSDCounter, n, setting.R)
     r = 1
     s = 1
@@ -301,14 +332,14 @@ function optimize(x, setting::RLSSDstar)
 
         if u > thresholds[s]
             if s == 1
-                if r < n/2
-                    r = r+1
+                if r < n / 2
+                    r = r + 1
                 else
                     r = n
                 end
                 s = r
             else
-                s = s-1
+                s = s - 1
             end
             u = 0
             # println("RLSSDstar ", r, " ", s, " ", fitness(x), isoptimum(x))
@@ -319,9 +350,12 @@ end
 
 
 struct RLS12 <: AbstractEA
-    stop :: AbstractStop
-    name:: LaTeXString
-    function RLS12(;stop::AbstractStop=FixedBudget(1000), name:: LaTeXString=L"RLS^{1,2}")
+    stop::AbstractStop
+    name::LaTeXString
+    function RLS12(;
+        stop::AbstractStop = FixedBudget(1000),
+        name::LaTeXString = L"RLS^{1,2}",
+    )
         new(stop, name)
     end
 end
@@ -329,11 +363,10 @@ end
 function optimize(x, setting::RLS12)
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     # bitrand returns a random bit string.
 
     for iter ∈ 1:niterations(setting.stop)
-
         if rand() < 0.5
             y = mutation(x, KBitFlip(1))
         else
@@ -356,10 +389,14 @@ function optimize(x, setting::RLS12)
 end
 
 struct RLSSDstarstar <: AbstractEA
-    R :: Real
-    stop :: AbstractStop
-    name :: LaTeXString
-    function RLSSDstarstar(;R::Real=1, stop::AbstractStop=FixedBudget(1000), name :: LaTeXString=L"SD-RLS^m")
+    R::Real
+    stop::AbstractStop
+    name::LaTeXString
+    function RLSSDstarstar(;
+        R::Real = 1,
+        stop::AbstractStop = FixedBudget(1000),
+        name::LaTeXString = L"SD-RLS^m",
+    )
         new(R, stop, name)
     end
 end
@@ -367,7 +404,7 @@ end
 function optimize(x, setting::RLSSDstarstar)
     trace = Trace(setting, x)
     x = initial(x)
-    n=length(x)
+    n = length(x)
     thresholds = threshold_gen(RLSSDCounter, n, setting.R)
     r = 1
     s = 1
@@ -382,7 +419,7 @@ function optimize(x, setting::RLSSDstarstar)
             r = s
             s = 1
             if r > 1
-                B = u/(r-1) * 1/log(n)
+                B = u / (r - 1) * 1 / log(n)
             else
                 B = typemax(Int)
             end
@@ -397,14 +434,14 @@ function optimize(x, setting::RLSSDstarstar)
 
         if u > min(B, thresholds[s])
             if s == r
-                if r < n/2-1
-                    r = r+1
+                if r < n / 2 - 1
+                    r = r + 1
                 else
                     r = n
                 end
                 s = 1
             else
-                s = s+1
+                s = s + 1
                 if s == r
                     B = typemax(Int)
                 end
