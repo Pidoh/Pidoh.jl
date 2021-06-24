@@ -10,11 +10,12 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://Pidoh.github.io/Pidoh.jl",
         assets = String[],
+        collapselevel = 1,
     ),
     pages = [
-        "Home" => "index.md",
-        "Problems" => "problems.md",
-        "Solution instances" => "instances.md",
+        "Pidoh" => "index.md",
+        "Problems" => Any["bitstringproblems.md", "problems.md"],
+        "Instances" => "instances.md",
     ],
 )
 

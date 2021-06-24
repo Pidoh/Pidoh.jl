@@ -21,11 +21,19 @@ function fitness(
     fitness(y, problem)
 end
 """
-    OneMax
-Fitness function for binary strings.
+    struct OneMax <: AbstractBitstringProblem
+        n::Integer
+    end
+
+Maximization of the number of `true` in a `BitArray`. The mathematical definition of this problem is
+maximizing the number of one-bits in a bitstring, which can be seen in the following formula:
+
+```math
+OneMax(x_1,\\dots,x_n)\\coloneqq\\sum_{i=1}^{n}x_i
+```
+
 ## Examples
-Consider the following example:
-```jldoctest objective_function; setup = :(using Pidoh)
+```jldoctest; setup = :(using Pidoh)
 julia> problem = OneMax(4)
 OneMax(4)
 
