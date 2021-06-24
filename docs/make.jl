@@ -14,12 +14,9 @@ makedocs(;
     ),
     pages = [
         "Pidoh" => "index.md",
-        "Problems" => Any[
-            "bitstringproblems.md",
-            "problems.md",
-            ],
-        "Instances"=> "instances.md",
-    ]
+        "Problems" => Any["bitstringproblems.md", "problems.md"],
+        "Instances" => "instances.md",
+    ],
 )
 
 deploydocs(; repo = "github.com/Pidoh/Pidoh.jl")
