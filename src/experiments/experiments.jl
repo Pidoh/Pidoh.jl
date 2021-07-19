@@ -41,30 +41,39 @@ struct Experiment
     name::String
     jobs::Array{Job,1}
     workspace::String
+    directory::Bool
 
     function Experiment(
         name::String,
         algorithms::Array{T,1},
         instances::Array{Instance,1};
+        directory::Bool = true,
         repeat::Integer = 1,
     ) where {T<:AbstractAlgorithm}
         if length(algorithms) ≠ length(instances)
             error("The number of algorithms is not match with the number of initials.")
         end
 
-        if !ispath("_workspace/$(name)")
-            workspace = "_workspace/$(name)"
-        elseif !ispath("_workspace/$(name)_" * Dates.format(now(), "SS"))
-
-            workspace = "_workspace/$(name)_" * Dates.format(now(), "SS")
-        else
-            workspace = "_workspace/$(name)_" * Dates.format(now(), "mmddHHMMSS")
-        end
-
         jobs =
             [Job(algorithms[i], instances[i]) for j = 1:repeat for i = 1:length(algorithms)]
+
+        if directory
+            if !ispath("_workspace/$(name)")
+                workspace = "_workspace/$(name)"
+            elseif !ispath("_workspace/$(name)_" * Dates.format(now(), "SS"))
+
+                workspace = "_workspace/$(name)_" * Dates.format(now(), "SS")
+            else
+                workspace = "_workspace/$(name)_" * Dates.format(now(), "mmddHHMMSS")
+            end
+        else
+            workspace = "@memory/$(name)"
+        end
         obj = new(name, jobs, workspace)
-        mkworkspace(obj)
+
+        if directory 
+            mkworkspace(obj)
+        end
         return obj
     end
 end

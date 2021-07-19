@@ -5,7 +5,7 @@ abstract type AbstractCooling end
 struct FixedCooling <: AbstractCooling
     temperature::Float64
     function FixedCooling(
-        temperature::Float64=1.0,
+        temperature::Float64=0.0,
     )
         new(temperature)
     end
