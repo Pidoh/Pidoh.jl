@@ -1,7 +1,11 @@
 abstract type AbstractSimulatedAnnealing <: AbstractAlgorithm end
 abstract type AbstractCooling end
 
-
+"""
+    struct FixedCooling <: AbstractCooling
+        temperature::Float64
+    end
+"""
 struct FixedCooling <: AbstractCooling
     temperature::Float64
     function FixedCooling(temperature::Float64 = 0.0)
@@ -13,12 +17,18 @@ function temperature(cooling::FixedCooling, iter::Int64)
     return cooling.temperature
 end
 
-
-struct sa <: AbstractSimulatedAnnealing
+"""
+    struct SimulatedAnnealing <: AbstractSimulatedAnnealing
+        cooling::AbstractCooling
+        stop::AbstractStop
+        name::LaTeXString
+    end
+"""
+struct SimulatedAnnealing <: AbstractSimulatedAnnealing
     cooling::AbstractCooling
     stop::AbstractStop
     name::LaTeXString
-    function sa(
+    function SimulatedAnnealing(
         cooling::AbstractCooling;
         stop::AbstractStop = FixedBudget(10^10),
         name::LaTeXString = L"Simulated-Annealing",
@@ -27,7 +37,7 @@ struct sa <: AbstractSimulatedAnnealing
     end
 end
 
-function optimize(x, setting::sa)
+function optimize(x, setting::SimulatedAnnealing)
     trace = Trace(setting, x)
     x = initial(x)
     n = length(x)

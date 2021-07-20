@@ -69,7 +69,7 @@ struct Experiment
         else
             workspace = "@memory/$(name)"
         end
-        obj = new(name, jobs, workspace)
+        obj = new(name, jobs, workspace, save)
 
         if save
             mkworkspace(obj)

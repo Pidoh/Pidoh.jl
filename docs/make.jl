@@ -14,6 +14,7 @@ makedocs(;
     ),
     pages = [
         "Pidoh" => "index.md",
+        "Algorithms" => Any["simulatedannealing.md"],
         "Problems" => Any["bitstringproblems.md", "problems.md"],
         "Instances" => "instances.md",
     ],
