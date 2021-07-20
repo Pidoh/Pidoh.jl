@@ -13,7 +13,7 @@ mutable struct Trace
     function Trace(
         algorithm::AbstractAlgorithm,
         individual::Instance;
-        seed::Integer = ceil(Integer, (time() * 10e6)% typemax(Int)) ,
+        seed::Integer = ceil(Integer, (time() * 10e6) % typemax(Int)),
         rows::DataFrames.DataFrame = DataFrames.DataFrame(),
         optimum = (individual = missing, iteration = -1),
     )
