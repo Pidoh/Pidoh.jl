@@ -23,7 +23,11 @@ SimulatedAnnealing
 ```
 
 ## Built-in cooling schedules
+### Fixed Cooling Schedulers
 ```@docs
 
 FixedCooling
 ```
+
+### Dynamic Cooling Schedulers
+There is no dynamic cooling schedulers implemented yet.
