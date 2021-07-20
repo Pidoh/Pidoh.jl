@@ -20,7 +20,7 @@ function uiimutationpositions(x::Instance, probability::Real)
         return collect(1:length(x))
     end
 
-    positions::Array{Int64,1} = []
+    positions::Array{Integer,1} = []
     geom = Geometric(probability)
     bit = rand(geom) + 1
 
@@ -76,7 +76,7 @@ end
 struct HeavyTailedMutation <: Mutation
     β::Float64
     n::Integer
-    dpl::DiscreteNonParametric{Int64,Float64,Base.OneTo{Int64},Array{Float64,1}}
+    dpl::DiscreteNonParametric{Integer,Float64,Base.OneTo{Integer},Array{Float64,1}}
     function HeavyTailedMutation(β::Float64, n::Integer; dpl = discretepowerlaw(β, n))
         new(β, n, dpl)
     end

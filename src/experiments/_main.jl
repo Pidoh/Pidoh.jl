@@ -1,7 +1,7 @@
 
 println("HELLO from ", ENV["SERVER_ID"])
 
-server_id = parse(Int64, ENV["SERVER_ID"])
+server_id = parse(Integer, ENV["SERVER_ID"])
 
 using Logging
 

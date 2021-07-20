@@ -8,12 +8,12 @@ mutable struct Trace
     algorithm::AbstractAlgorithm
     individual::Instance
     rows::DataFrames.DataFrame
-    optimum::NamedTuple{(:individual, :iteration),Tuple{Any,Int64}}
+    optimum::NamedTuple{(:individual, :iteration),Tuple{Any,Integer}}
 
     function Trace(
         algorithm::AbstractAlgorithm,
         individual::Instance;
-        seed::Int64 = ceil(Int64, time() * 10e6),
+        seed::Integer = ceil(Integer, time() * 10e6),
         rows::DataFrames.DataFrame = DataFrames.DataFrame(),
         optimum = (individual = missing, iteration = -1),
     )
@@ -78,11 +78,11 @@ function info(trace::Trace, text, data)
     @debug text data...
 end
 
-function optimumfound(trace::Trace, x::Instance, iteration::Int64)
+function optimumfound(trace::Trace, x::Instance, iteration::Integer)
     storeresult(trace)
 end
 
-function record(db::Trace, x::Instance, iteration::Int64, isoptimum::Bool = false)
+function record(db::Trace, x::Instance, iteration::Integer, isoptimum::Bool = false)
     tuple = (iteration = iteration, fitness = fitness(x))
     info(db, "New row is inserted.", tuple)
     push!(db.rows, (iteration = iteration, fitness = fitness(x)))

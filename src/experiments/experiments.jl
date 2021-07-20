@@ -17,8 +17,8 @@ mutable struct Job
     status::JobStatus
     startdate::Union{DateTime,Nothing}
     finishdate::Union{DateTime,Nothing}
-    threadid::Union{Int64,Nothing}
-    serverid::Union{Int64,Nothing}
+    threadid::Union{Integer,Nothing}
+    serverid::Union{Integer,Nothing}
 
 
     function Job(
@@ -29,8 +29,8 @@ mutable struct Job
         status::JobStatus = pending,
         startdate::Union{DateTime,Nothing} = nothing,
         finishdate::Union{DateTime,Nothing} = nothing,
-        threadid::Union{Int64,Nothing} = nothing,
-        serverid::Union{Int64,Nothing} = nothing,
+        threadid::Union{Integer,Nothing} = nothing,
+        serverid::Union{Integer,Nothing} = nothing,
     )
         new(jobid, algorithm, instance, trace, status, startdate, finishdate, serverid)
     end
@@ -143,8 +143,8 @@ function run(job::Job)
     @info("The job finished.")
 end
 
-function run(exp::Experiment, serverid::Int64 = 0, shuffle::Bool = true)
-    queue = collect(1:length(exp))
+function run(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
+    queue = collect(Integer, 1:length(exp))
     if shuffle
         shuffle!(queue)
     end
@@ -152,7 +152,7 @@ function run(exp::Experiment, serverid::Int64 = 0, shuffle::Bool = true)
     # Threads.@threads for i in queue
     for i in queue
         job = exp.jobs[i]
-        @info("Job $i: $(job.serverid)")
+        @info("Job $i.")
         if serverid == 0 || job.serverid == serverid
             if job.status == pending
                 @info("Job $i is processing in server $serverid.")
