@@ -4,9 +4,7 @@ abstract type AbstractCooling end
 
 struct FixedCooling <: AbstractCooling
     temperature::Float64
-    function FixedCooling(
-        temperature::Float64=0.0,
-    )
+    function FixedCooling(temperature::Float64 = 0.0)
         new(temperature)
     end
 end
@@ -20,9 +18,10 @@ struct sa <: AbstractSimulatedAnnealing
     cooling::AbstractCooling
     stop::AbstractStop
     name::LaTeXString
-    function sa(cooling::AbstractCooling;
+    function sa(
+        cooling::AbstractCooling;
         stop::AbstractStop = FixedBudget(10^10),
-        name::LaTeXString=L"Simulated-Annealing",
+        name::LaTeXString = L"Simulated-Annealing",
     )
         new(cooling, stop, name)
     end
@@ -36,7 +35,7 @@ function optimize(x, setting::sa)
     for iter ∈ 1:niterations(setting.stop)
         α = temperature(setting.cooling, iter)
         y = mutation(x, KBitFlip(1))
-        Δ =  fitness(y) - fitness(x)
+        Δ = fitness(y) - fitness(x)
 
         if Δ ≥ 0
             if Δ > 0

@@ -59,7 +59,6 @@ function storeresult(trace::Trace)
 
     result_df = DataFrame(result)
 
-    # CSV.write("results/rows.csv", db.rows_df, append=true)
     csvfilename = string(typeof(trace.algorithm))
     writeheader = false
     rlock = Threads.Condition()
@@ -90,9 +89,3 @@ function record(db::Trace, x::Instance, iteration::Int64, isoptimum::Bool = fals
     db.optimum = (individual = x.individual, iteration = iteration)
     isoptimum && optimumfound(db, x, iteration)
 end
-
-#
-# function result(db::dbEngine, data)
-#     @debug "Result" data...
-#     push!(db.results, data)
-# end

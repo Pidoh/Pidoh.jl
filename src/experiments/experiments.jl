@@ -41,13 +41,13 @@ struct Experiment
     name::String
     jobs::Array{Job,1}
     workspace::String
-    directory::Bool
+    save::Bool
 
     function Experiment(
         name::String,
         algorithms::Array{T,1},
         instances::Array{Instance,1};
-        directory::Bool = true,
+        save::Bool = true,
         repeat::Integer = 1,
     ) where {T<:AbstractAlgorithm}
         if length(algorithms) ≠ length(instances)
@@ -57,7 +57,7 @@ struct Experiment
         jobs =
             [Job(algorithms[i], instances[i]) for j = 1:repeat for i = 1:length(algorithms)]
 
-        if directory
+        if save
             if !ispath("_workspace/$(name)")
                 workspace = "_workspace/$(name)"
             elseif !ispath("_workspace/$(name)_" * Dates.format(now(), "SS"))
@@ -71,7 +71,7 @@ struct Experiment
         end
         obj = new(name, jobs, workspace)
 
-        if directory 
+        if save
             mkworkspace(obj)
         end
         return obj
@@ -184,6 +184,9 @@ end
 
 
 function mkworkspace(exp::Experiment)
+    if !exp.save
+        return
+    end
     name = exp.name
     workspace = exp.workspace
 
@@ -211,6 +214,9 @@ function mkworkspace(exp::Experiment)
 end
 
 function updateworkspace(exp::Experiment)
+    if !exp.save
+        return
+    end
     name = exp.name
     workspace = exp.workspace
     date = Dates.format(now(), "mmddHHMMSSs")
