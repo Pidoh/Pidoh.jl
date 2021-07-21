@@ -34,6 +34,7 @@ include("algorithms/algorithms.jl")
 include("experiments/experiments.jl")
 # include("experiments/engines.jl")
 export Experiment
+export Job
 export HPC
 export cluster,
     createworkspaceinserver, createworkspace, loadexperiment, fetch, mergeexperiments

@@ -5,7 +5,8 @@ using DataFrames
 using Dates
 using Random
 using UUIDs
-import Base: run, length
+import Base: run
+
 
 @enum JobStatus pending assigned running finished
 
@@ -36,6 +37,11 @@ mutable struct Job
     end
 end
 
+function Base.show(io::IO,j::Job)
+    show(io, j.algorithm)
+    print(io, " on ")
+    show(io, j.instance.problem)
+end
 
 struct Experiment
     name::String
@@ -78,7 +84,39 @@ struct Experiment
     end
 end
 
-length(exp::Experiment) = length(exp.jobs)
+function Experiment(
+    name::String,
+    algorithms::Array{T,1},
+    instance::Instance;
+    save::Bool = true,
+    repeat::Integer = 1,
+) where {T<:AbstractAlgorithm}
+    instances  = [instance for i in 1:length(algorithms)]
+    Experiment(name, algorithms, instances, save=save, repeat=repeat)
+end
+
+Base.length(exp::Experiment) = length(exp.jobs)
+
+
+Base.findall(status::JobStatus, jobs::Array{Pidoh.Job,1}) = findall(x-> x.status==status,jobs)
+
+function Base.show(io::IO,exp::Experiment)
+    show(io, exp.name)
+    print(io, "(")
+    show(io, exp.workspace)
+    print(io, ")")
+    println(io, ":")
+    println(io, "- The number of jobs: $(length(exp.jobs)).")
+
+    for status in values(instances(JobStatus))
+        subjobs = [exp.jobs[i] for i in findall(status, exp.jobs)]
+        println(io, "- - The number of $status jobs: $(length(subjobs)).")
+        if length(subjobs) > 0
+            show(subjobs)
+        end
+    end
+end
+
 
 function mergeexperiments(path::String)
     jld2files = []
