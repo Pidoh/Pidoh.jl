@@ -5,18 +5,14 @@ In this part, the basic requirements are installed.
 <!-- this setup dependencies, but doesn't appear in the generated document -->
 ```julia; echo = false; results = "hidden"
 using Pkg
-Pkg.activate("/Users/amraj/Projects/Pidoh")
+Pkg.activate("../../..")
 "DataFrames" ∉ keys(Pkg.project().dependencies) && Pkg.add("DataFrames")
 "Plots" ∉ keys(Pkg.project().dependencies) && Pkg.add("Plots")
 "Statistics" ∉ keys(Pkg.project().dependencies) && Pkg.add("Statistics")
 
-using Pidoh
+using Pidoh, Plots, DataFrames, Statistics
 
-using Plots
-using DataFrames
-using Statistics
-
-experiment = loadexperiment("../data.jld2");
+experiment = loadexperiment("../data.jld2")
 ```
 
 
@@ -37,15 +33,7 @@ DSP.jl package doesn't (yet) have a method to calculate the
 the frequency response of a FIR filter so we define it:
 
 ```julia
-result = DataFrames.DataFrame()
-
-for job in experiment.jobs
-    trace = job.trace
-      if !isnothing(trace)
-        push!(result, (algorithm=name(trace.algorithm) ,runtime=trace.optimum[2], problem=trace.individual.name, problem_size=length(trace.individual.problem)))
-      end
-    end
-first(result, 10)
+showall(head(runtimes(experiment)))
 ```
 
 ## Design Lowpass FIR filter

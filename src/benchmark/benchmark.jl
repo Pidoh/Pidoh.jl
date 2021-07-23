@@ -108,3 +108,40 @@ function resultpvalue(df::DataFrames.DataFrame)
         end
     end
 end
+
+
+function runtimes(jobs::Array{Job,1})
+    result = DataFrames.DataFrame()
+    allowmissing!(result)
+    for job in jobs
+        trace = job.trace
+        if !isnothing(trace)
+            thing = (seed=trace.seed, algorithm=name(trace.algorithm), problem=string(trace.individual.problem), runtime=trace.optimum[2])
+            push!(result, thing)
+        end
+    end
+
+    for job in jobs
+        trace = job.trace
+        if !isnothing(trace)
+            thing = (seed=trace.seed, algorithm=name(trace.algorithm))
+            paramgroups = ( ProblemParam = deepparameters(trace.individual.problem), AlgorithmParams = deepparameters(trace.algorithm))
+            for paramgroupkey in keys(paramgroups)
+                for p in paramgroups[paramgroupkey]
+                    label = Symbol(string(paramgroupkey )*"."*string(p[1]))
+                    if string(label) in names(result)
+                        result[result[:seed].==trace.seed,label] = p[2]
+                    else
+                        df = DataFrame([(seed=trace.seed, l=p[2])])
+                        rename!(df,:l => label)
+                        result = outerjoin(result, df, on = [:seed], makeunique=true )
+                    end
+                end
+            end
+        end
+    end
+
+    result
+end
+
+runtimes(exp::Experiment) = runtimes(exp.jobs)

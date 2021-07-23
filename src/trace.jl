@@ -22,14 +22,22 @@ mutable struct Trace
 end
 
 
-#
-# function store(db::dbEngine)
-#     date_format = Dates.format(now(), "yymmddHHMMSS_s")
-#     id = db.id
-#     CSV.write("results/rows.csv", db.rows_df, append=true)
-#     CSV.write("results/results.csv", db.results, append=true)
-# end
-#
+function deepparameters(object)
+    allfields = Dict()
+    for fieldname in fieldnames(typeof(object))
+        if typeof(getfield(object, fieldname)) <: Real
+            push!(allfields, (fieldname => getfield(object, fieldname)))
+        else
+            subfield = getfield(object, fieldname)
+            push!(allfields, (fieldname => string(getfield(object, fieldname))))
+            for field in keys(deepparameters(subfield))
+                push!(allfields, (Symbol(string(fieldname)*"_"*string(field)) => getfield(subfield, field)))
+            end
+        end
+    end
+    allfields
+end
+
 
 function realparameters(algorithm::T) where {T<:AbstractAlgorithm}
     realfields = []

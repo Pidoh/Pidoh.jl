@@ -1,5 +1,3 @@
-import Base: show
-
 include("stop.jl")
 include("eas.jl")
 include("simulated-annealing.jl")
@@ -12,10 +10,10 @@ export FixedCooling, temperature, SimulatedAnnealing, AbstractCooling
 
 name(algo::AbstractAlgorithm) = algo.name
 
-function show(io::IO,algo::AbstractAlgorithm)
+function Base.show(io::IO,algo::AbstractAlgorithm)
     show(io, algo.name)
     first = true
-    for p in realparameters(algo)
+    for p in deepparameters(algo)
         if first
             print(io, " with ")
             first = false
@@ -23,18 +21,9 @@ function show(io::IO,algo::AbstractAlgorithm)
             print(io, " and ")
         end
 
-        show(io, p)
+        show(io, string(p[1]))
         print(io, ":")
-        show(io, getfield(algo, p))
+        show(io, p[2])
     end
 end
 
-function realparameters(algo::AbstractAlgorithm)
-    realfields = []
-    for fieldname in fieldnames(typeof(algo))
-        if typeof(getfield(algo, fieldname)) <: Real
-            push!(realfields, fieldname)
-        end
-    end
-    realfields
-end

@@ -39,8 +39,22 @@ end
 
 function Base.show(io::IO,j::Job)
     show(io, j.algorithm)
-    print(io, " on ")
+    print(io, "\nOn ")
     show(io, j.instance.problem)
+    println("")
+end
+
+function Base.show(io::IO,js::Array{Job,1})
+    ns = length(js)
+    printnumber = 5
+    rperm = randperm(ns)
+
+    for i in 1:min(length(js), printnumber)
+        show(io, js[rperm[i]])
+    end
+    if ns > printnumber
+        println("... there are $(ns-printnumber) jobs hidden.")
+    end
 end
 
 struct Experiment

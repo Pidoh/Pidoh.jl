@@ -3,12 +3,14 @@ include("bitstrings.jl")
 include("graphs.jl")
 include("sats.jl")
 
-import Base: show
+import Base: name
 
-function show(io::IO, problem::AbstractProblem)
+name(problem::AbstractProblem) = string(problem)
+
+function Base.show(io::IO, problem::AbstractProblem)
     show(io, string(typeof(problem)))
     first = true
-    for p in realparameters(problem)
+    for p in deepparameters(problem)
         if first
             print(io, " with ")
             first = false
@@ -16,18 +18,8 @@ function show(io::IO, problem::AbstractProblem)
             print(io, " and ")
         end
 
-        show(io, p)
+        show(io, string(p[1]))
         print(io, ":")
-        show(io, getfield(problem, p))
+        show(io, p[2])
     end
-end
-
-function realparameters(problem::AbstractProblem)
-    realfields = []
-    for fieldname in fieldnames(typeof(problem))
-        if typeof(getfield(problem, fieldname)) <: Real
-            push!(realfields, fieldname)
-        end
-    end
-    realfields
 end

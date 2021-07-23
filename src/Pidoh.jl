@@ -11,7 +11,7 @@ export OneMax, ZeroMax, Jump
 export MST, MaximumMatching
 export MaxSAT, MaxSATgeneratorP
 export TG, ER, Kn, GHL
-export fitness, optimum
+export fitness, optimum, realparameters
 
 include("instance.jl")
 export Instance
@@ -27,7 +27,7 @@ export generate
 
 
 include("trace.jl")
-export Trace, info, record
+export Trace, info, record, deepparameters
 
 include("algorithms/algorithms.jl")
 
@@ -40,6 +40,6 @@ export cluster,
     createworkspaceinserver, createworkspace, loadexperiment, fetch, mergeexperiments
 
 include("benchmark/benchmark.jl")
-export benchmark
+export benchmark, runtimes
 
 end
