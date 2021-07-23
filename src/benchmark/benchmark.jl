@@ -8,7 +8,6 @@ using Weave
 using IJulia
 
 function benchmark(exp::Experiment)
-    name = exp.name
     workspace = exp.workspace
 
     if !ispath(workspace * "/notebooks")
@@ -136,7 +135,7 @@ function runtimes(jobs::Array{Job,1})
             )
             for paramgroupkey in keys(paramgroups)
                 for p in paramgroups[paramgroupkey]
-                    label = Symbol(string(paramgroupkey) * "." * string(p[1]))
+                    label = Symbol(string(paramgroupkey) * "_" * string(p[1]))
                     if string(label) in names(result)
                         result[result[:seed].==trace.seed, label] = p[2]
                     else

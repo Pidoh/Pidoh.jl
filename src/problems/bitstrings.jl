@@ -29,13 +29,12 @@ Maximization of the number of `true` in a `BitArray`. The mathematical definitio
 maximizing the number of one-bits in a bitstring, which can be seen in the following formula:
 
 ```math
-OneMax(x_1,\\dots,x_n)\\coloneqq\\sum_{i=1}^{n}x_i
+OneMax(x_1,\\dots,x_n)\\coloneqq\\sum_{i=1}^{n}x_i.
 ```
 
 ## Examples
 ```jldoctest; setup = :(using Pidoh)
-julia> problem = OneMax(4)
-OneMax(4)
+julia> problem = OneMax(4);
 
 julia> fitness(BitArray([true,true,false,true]), problem)
 3
