@@ -16,25 +16,34 @@ experiment = loadexperiment("../data.jld2")
 ```
 
 
-# FIR Filter Design
+# Runtime Analysis
 
-
-We'll implement lowpass, highpass and ' bandpass FIR filters. If
-you want to read more about DSP I highly recommend [The Scientist
-and Engineer's Guide to Digital Signal
-Processing](http://www.dspguide.com/) which is freely available
-online.
-
-
-## Calculating frequency response
-
-
-DSP.jl package doesn't (yet) have a method to calculate the
-the frequency response of a FIR filter so we define it:
 
 ```julia
-showall(head(runtimes(experiment)))
+data = runtimes(experiment)
+showall(head(data))
 ```
+
+
+## Graphs
+```julia
+categories = :algorithm
+xdata = :AlgorithmParams_cooling_temperature
+ydata = :runtime
+
+plt = plot()
+for cat in keys(groupby(data, categories))
+    filtered_data = filter(row -> row[categories]==cat, data)
+    aggregated_data = combine(groupby(data, xdata), :runtime => mean)
+    sort!(aggregated_data, 1)
+    plot!(plt, aggregated_data[1], aggregated_data[2], fillalpha=0.5, dpi=200,
+        fontfamily="sans-serif", linewidth = 2,
+        markersize=3, markershape=:circle,linealpha = 0.5, size=(300,300),
+        label = cat[1], xlabel=string(xdata), ylabel=string(ydata))
+end
+plt
+```
+## Hypothesis Tests
 
 ## Design Lowpass FIR filter
 
