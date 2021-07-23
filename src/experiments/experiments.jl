@@ -37,19 +37,19 @@ mutable struct Job
     end
 end
 
-function Base.show(io::IO,j::Job)
+function Base.show(io::IO, j::Job)
     show(io, j.algorithm)
     print(io, "\nOn ")
     show(io, j.instance.problem)
     println("")
 end
 
-function Base.show(io::IO,js::Array{Job,1})
+function Base.show(io::IO, js::Array{Job,1})
     ns = length(js)
     printnumber = 5
     rperm = randperm(ns)
 
-    for i in 1:min(length(js), printnumber)
+    for i = 1:min(length(js), printnumber)
         show(io, js[rperm[i]])
     end
     if ns > printnumber
@@ -105,16 +105,17 @@ function Experiment(
     save::Bool = true,
     repeat::Integer = 1,
 ) where {T<:AbstractAlgorithm}
-    instances  = [instance for i in 1:length(algorithms)]
-    Experiment(name, algorithms, instances, save=save, repeat=repeat)
+    instances = [instance for i = 1:length(algorithms)]
+    Experiment(name, algorithms, instances, save = save, repeat = repeat)
 end
 
 Base.length(exp::Experiment) = length(exp.jobs)
 
 
-Base.findall(status::JobStatus, jobs::Array{Pidoh.Job,1}) = findall(x-> x.status==status,jobs)
+Base.findall(status::JobStatus, jobs::Array{Pidoh.Job,1}) =
+    findall(x -> x.status == status, jobs)
 
-function Base.show(io::IO,exp::Experiment)
+function Base.show(io::IO, exp::Experiment)
     show(io, exp.name)
     print(io, "(")
     show(io, exp.workspace)

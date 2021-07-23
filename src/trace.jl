@@ -31,7 +31,13 @@ function deepparameters(object)
             subfield = getfield(object, fieldname)
             push!(allfields, (fieldname => string(getfield(object, fieldname))))
             for field in keys(deepparameters(subfield))
-                push!(allfields, (Symbol(string(fieldname)*"_"*string(field)) => getfield(subfield, field)))
+                push!(
+                    allfields,
+                    (
+                        Symbol(string(fieldname) * "_" * string(field)) =>
+                            getfield(subfield, field)
+                    ),
+                )
             end
         end
     end
