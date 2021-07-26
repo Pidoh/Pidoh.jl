@@ -8,12 +8,12 @@ mutable struct Trace
     algorithm::AbstractAlgorithm
     individual::Instance
     rows::DataFrames.DataFrame
-    optimum::NamedTuple{(:individual, :iteration),Tuple{Any,Int64}}
+    optimum::NamedTuple{(:individual, :iteration),Tuple{Any,Integer}}
 
     function Trace(
         algorithm::AbstractAlgorithm,
         individual::Instance;
-        seed::Int64 = ceil(Int64, time() * 10e6),
+        seed::Integer = ceil(Integer, (time() * 10e6) % typemax(Int)),
         rows::DataFrames.DataFrame = DataFrames.DataFrame(),
         optimum = (individual = missing, iteration = -1),
     )
@@ -59,7 +59,6 @@ function storeresult(trace::Trace)
 
     result_df = DataFrame(result)
 
-    # CSV.write("results/rows.csv", db.rows_df, append=true)
     csvfilename = string(typeof(trace.algorithm))
     writeheader = false
     rlock = Threads.Condition()
@@ -79,20 +78,14 @@ function info(trace::Trace, text, data)
     @debug text data...
 end
 
-function optimumfound(trace::Trace, x::Instance, iteration::Int64)
+function optimumfound(trace::Trace, x::Instance, iteration::Integer)
     storeresult(trace)
 end
 
-function record(db::Trace, x::Instance, iteration::Int64, isoptimum::Bool = false)
+function record(db::Trace, x::Instance, iteration::Integer, isoptimum::Bool = false)
     tuple = (iteration = iteration, fitness = fitness(x))
     info(db, "New row is inserted.", tuple)
     push!(db.rows, (iteration = iteration, fitness = fitness(x)))
     db.optimum = (individual = x.individual, iteration = iteration)
     isoptimum && optimumfound(db, x, iteration)
 end
-
-#
-# function result(db::dbEngine, data)
-#     @debug "Result" data...
-#     push!(db.results, data)
-# end
