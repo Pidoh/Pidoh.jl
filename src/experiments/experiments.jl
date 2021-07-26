@@ -149,7 +149,6 @@ function run(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
         shuffle!(queue)
     end
     @info("Server $serverid is started to work.")
-    # Threads.@threads for i in queue
     for i in queue
         job = exp.jobs[i]
         @info("Job $i.")
@@ -161,9 +160,9 @@ function run(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
             end
         end
     end
-    # println("HEEE")
-    # @info("The jobs finished.")
-    updateworkspace(exp)
+    if exp.save
+        updateworkspace(exp)
+    end
     exp
 end
 
@@ -172,7 +171,9 @@ function run(exp::Experiment, hpc::HPC)
     for job in exp.jobs
         job.serverid = rand(1:hpc.jobs)
     end
-    updateworkspace(exp)
+    if exp.save
+        updateworkspace(exp)
+    end
 
     createtasktemplate(exp, hpc)
     createworkspaceinserver(exp, hpc)
@@ -184,9 +185,6 @@ end
 
 
 function mkworkspace(exp::Experiment)
-    if !exp.save
-        return
-    end
     name = exp.name
     workspace = exp.workspace
 
@@ -214,9 +212,6 @@ function mkworkspace(exp::Experiment)
 end
 
 function updateworkspace(exp::Experiment)
-    if !exp.save
-        return
-    end
     name = exp.name
     workspace = exp.workspace
     date = Dates.format(now(), "mmddHHMMSSs")
