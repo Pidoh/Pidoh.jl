@@ -7,7 +7,7 @@ abstract type AbstractIP end
 
 include("problems/problems.jl")
 export AbstractProblem, AbstractBitstringProblem, AbstractGraphProblem, AbstractAlgorithm
-export OneMax, ZeroMax, Jump
+export OneMax, ZeroMax, Jump, LeadingOnes, CliffTwoParameters
 export MST, MaximumMatching
 export MaxSAT, MaxSATgeneratorP
 export TG, ER, Kn, GHL
