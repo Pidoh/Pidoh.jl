@@ -11,7 +11,7 @@ export FixedCooling, temperature, SimulatedAnnealing, AbstractCooling
 name(algo::AbstractAlgorithm) = algo.name
 
 function Base.show(io::IO, algo::AbstractAlgorithm)
-    show(io, algo.name)
+    print(io, algo.name)
     first = true
     for p in deepparameters(algo)
         if first
@@ -21,7 +21,7 @@ function Base.show(io::IO, algo::AbstractAlgorithm)
             print(io, " and ")
         end
 
-        show(io, string(p[1]))
+        print(io, string(p[1]))
         print(io, ":")
         show(io, p[2])
     end

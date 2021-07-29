@@ -30,12 +30,12 @@ function deepparameters(object)
         else
             subfield = getfield(object, fieldname)
             push!(allfields, (fieldname => string(getfield(object, fieldname))))
-            for field in keys(deepparameters(subfield))
+            for key_value in deepparameters(subfield)
                 push!(
                     allfields,
                     (
-                        Symbol(string(fieldname) * "_" * string(field)) =>
-                            getfield(subfield, field)
+                        Symbol(string(fieldname) * "_" * string(key_value[1])) =>
+                            key_value[2]
                     ),
                 )
             end

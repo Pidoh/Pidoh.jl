@@ -6,11 +6,9 @@ In this part, the basic requirements are installed.
 ```julia; echo = false; results = "hidden"
 using Pkg
 Pkg.activate("../../..")
-"DataFrames" ∉ keys(Pkg.project().dependencies) && Pkg.add("DataFrames")
-"Plots" ∉ keys(Pkg.project().dependencies) && Pkg.add("Plots")
-"Statistics" ∉ keys(Pkg.project().dependencies) && Pkg.add("Statistics")
 
-using Pidoh, Plots, DataFrames, Statistics
+using Pidoh
+notebookinitialization()
 
 experiment = loadexperiment("../data.jld2")
 ```
@@ -33,8 +31,8 @@ ydata = :runtime
 
 plt = plot()
 for cat in keys(groupby(data, categories))
-    filtered_data = filter(row -> row[categories]==cat, data)
-    aggregated_data = combine(groupby(data, xdata), :runtime => mean)
+    filtered_data = filter(row -> row[categories]==cat[1], data)
+    aggregated_data = combine(groupby(filtered_data, xdata), ydata => mean)
     sort!(aggregated_data, 1)
     plot!(plt, aggregated_data[1], aggregated_data[2], fillalpha=0.5, dpi=200,
         fontfamily="sans-serif", linewidth = 2,
