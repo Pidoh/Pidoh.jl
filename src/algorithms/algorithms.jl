@@ -5,7 +5,7 @@ export name
 export optimize, ea1pλwith2rates, ea1p1, ea1p1SD, ea1pλSASD, RLSSDstar, RLS12, RLSSDstarstar
 export SDCounter, SDCounterEstimation, RLSSDCounter, threshold_gen
 export FixedBudget, niterations
-export FixedCooling, temperature, SimulatedAnnealing, AbstractCooling
+export FixedCooling, temperature, SimulatedAnnealing, AbstractCooling, IntervalCooling
 
 
 name(algo::AbstractAlgorithm) = algo.name
