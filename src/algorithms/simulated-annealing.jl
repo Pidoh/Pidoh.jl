@@ -51,7 +51,7 @@ function optimize(x, setting::SimulatedAnnealing)
     n = length(x)
 
     for iter ∈ 1:niterations(setting.stop)
-        α = temperature(setting.cooling, iter)
+        α = float(temperature(setting.cooling, iter))
         y = mutation(x, KBitFlip(1))
         Δ = fitness(y) - fitness(x)
 

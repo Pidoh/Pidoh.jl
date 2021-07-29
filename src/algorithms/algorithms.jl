@@ -9,3 +9,20 @@ export FixedCooling, temperature, SimulatedAnnealing, AbstractCooling
 
 
 name(algo::AbstractAlgorithm) = algo.name
+
+function Base.show(io::IO, algo::AbstractAlgorithm)
+    print(io, algo.name)
+    first = true
+    for p in deepparameters(algo)
+        if first
+            print(io, " with ")
+            first = false
+        else
+            print(io, " and ")
+        end
+
+        print(io, string(p[1]))
+        print(io, ":")
+        show(io, p[2])
+    end
+end
