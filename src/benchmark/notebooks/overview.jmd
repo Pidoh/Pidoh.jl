@@ -7,8 +7,13 @@ In this part, the basic requirements are installed.
 using Pkg
 Pkg.activate("../../..")
 
-using Pidoh
-notebookinitialization()
+"DataFrames" ∉ keys(Pkg.project().dependencies) && Pkg.add("DataFrames")
+"Plots" ∉ keys(Pkg.project().dependencies) && Pkg.add("Plots")
+"Statistics" ∉ keys(Pkg.project().dependencies) && Pkg.add("Statistics")
+"PGFPlotsX" ∉ keys(Pkg.project().dependencies) && Pkg.add("PGFPlotsX")
+
+using Pidoh, Statistics, DataFrames, PGFPlotsX
+using Plots; pgfplotsx()
 
 experiment = loadexperiment("../data.jld2")
 ```

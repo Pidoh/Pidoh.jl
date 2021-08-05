@@ -86,7 +86,6 @@ function optimize(x, setting::SimulatedAnnealing)
 
         y = mutation(x, KBitFlip(1))
         Δ = fitness(y) - fitness(x)
-        @info α
         if Δ ≥ 0
             if Δ > 0
                 record(trace, y, iter, isoptimum(y))
