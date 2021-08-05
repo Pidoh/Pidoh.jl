@@ -16,10 +16,10 @@ struct ea1pλwith2rates <: AbstractEA
     end
 end
 
-function optimize(x, setting::ea1pλwith2rates)
+function optimize(initial, setting::ea1pλwith2rates)
     λ = setting.λ
+    x = initial
     trace = Trace(setting, x)
-    x = initial(x)
     n = length(x)
     # bitrand returns a random bit string.
     r = 2
@@ -45,7 +45,7 @@ function optimize(x, setting::ea1pλwith2rates)
         # The second condition is for implementing "breaking ties randomly".
         if fitness(α) ≥ fitness(x)
             if fitness(α) > fitness(x)
-                record(trace, α, iter, isoptimum(α))
+                record!(trace, iter, isoptimum(α), individual=α )
             end
             x = α
 
@@ -69,21 +69,21 @@ function optimize(x, setting::ea1pλwith2rates)
 end
 
 struct ea1p1 <: AbstractEA
-    mutation::Mutation
+    mutation::AbstractMutation
     stop::AbstractStop
     name::LaTeXString
     function ea1p1(;
         stop::AbstractStop = FixedBudget(1000),
-        mutation::Mutation = UniformlyIndependentMutation(0.5),
+        mutation::AbstractMutation = UniformlyIndependentMutation(0.5),
         name::LaTeXString = L"(1+1)EA",
     )
         new(mutation, stop, name)
     end
 end
 
-function optimize(x, setting::ea1p1)
-    trace = Trace(setting, x)
-    x = initial(x)
+function optimize(initial, setting::ea1p1)
+    x = initial
+    trace = Trace(setting, individual=x)
     n = length(x)
     # bitrand returns a random bit string.
 
@@ -96,7 +96,7 @@ function optimize(x, setting::ea1p1)
         if fitness(y) ≥ fitness(x)
             if fitness(y) > fitness(x)
                 # println(fitness(y))
-                record(trace, y, iter, isoptimum(y))
+                record!(trace, iter, isoptimum(y), individual=y)
             end
             x = y
 
@@ -159,7 +159,7 @@ function optimize(x, setting::ea1p1SD)
             r = 1
             # println("New rate", r)
             # println(fitness(x), " in iteration= ", iter)
-            record(trace, y, iter, isoptimum(y))
+            record!(trace, y, iter, isoptimum(y))
             if isoptimum(x)
                 # println("The Optimum is found.")
                 return trace
@@ -226,7 +226,7 @@ function optimize(x, setting::ea1pλSASD)
 
                 if fitness(y) > fitness(x)
                     # println("New rate $r in $g")
-                    record(trace, y, iter, isoptimum(y))
+                    record!(trace, y, iter, isoptimum(y))
                 end
                 x = y
 
@@ -269,7 +269,7 @@ function optimize(x, setting::ea1pλSASD)
                 # println("New rate $r in $g")
                 g = false
                 u = 0
-                record(trace, y, iter, isoptimum(y))
+                record!(trace, y, iter, isoptimum(y))
                 if isoptimum(x)
                     # println("The Optimum is found.")
                     return trace
@@ -322,7 +322,7 @@ function optimize(x, setting::RLSSDstar)
             u = 0
             r = 1
             s = 1
-            record(trace, y, iter, isoptimum(y))
+            record!(trace, y, iter, isoptimum(y))
             if isoptimum(x)
                 return trace
             end
@@ -376,7 +376,7 @@ function optimize(x, setting::RLS12)
         # The second condition is for implementing "breaking ties randomly".
         if fitness(y) ≥ fitness(x)
             if fitness(y) > fitness(x)
-                record(trace, y, iter, isoptimum(y))
+                record!(trace, y, iter, isoptimum(y))
             end
             x = y
 
@@ -424,7 +424,7 @@ function optimize(x, setting::RLSSDstarstar)
                 B = typemax(Int)
             end
             u = 0
-            record(trace, y, iter, isoptimum(y))
+            record!(trace, y, iter, isoptimum(y))
             if isoptimum(x)
                 return trace
             end

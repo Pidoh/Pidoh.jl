@@ -1,4 +1,4 @@
-abstract type AbstractGraphProblem <: AbstractProblem end
+abstract type AbstractGraphProblem <: AbstractProblem{Any} end
 
 import Base: length
 

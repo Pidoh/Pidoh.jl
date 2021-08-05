@@ -1,6 +1,6 @@
 using Random
 
-struct RandBitStringIP <: AbstractIP
+struct RandBitStringIP <: AbstractIP{BitArray}
     n::Integer
 end
 

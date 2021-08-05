@@ -6,14 +6,14 @@ function flip!(individual::BitArray, index::Integer)
     individual[index] = ~individual[index]
 end
 
-abstract type Mutation end
+abstract type AbstractMutation end
 
-struct UniformlyIndependentMutation <: Mutation
+struct UniformlyIndependentMutation <: AbstractMutation
     probability::Real
 end
 
 
-function uiimutationpositions(x::Instance, probability::Real)
+function uiimutationpositions(x::CondidateSolution{BitArray}, probability::Real)
     if probability == 0
         return []
     elseif probability == 1
@@ -32,7 +32,7 @@ function uiimutationpositions(x::Instance, probability::Real)
 end
 
 
-function mutation(x::Instance, mut::UniformlyIndependentMutation)
+function mutation(x::CondidateSolution{BitArray}, mut::UniformlyIndependentMutation)
     positions = uiimutationpositions(x, mut.probability)
     length(positions) == 0 && return x
 
@@ -40,21 +40,21 @@ function mutation(x::Instance, mut::UniformlyIndependentMutation)
     for bit ∈ positions
         flip!(y, bit)
     end
-    Instance(y, x.problem, fitnessvalue = fitness(x, positions))
+    CondidateSolution(y, x.problem, fitnessvalue = fitness(x, positions))
 end
 
 
-struct KBitFlip <: Mutation
+struct KBitFlip <: AbstractMutation
     K::Integer
 end
 
-function mutation(x::Instance, mut::KBitFlip)
+function mutation(x::CondidateSolution{BitArray}, mut::KBitFlip)
     positions = sample(1:length(x), mut.K, replace = false)
     y = copy(x.individual)
     for bit ∈ positions
         flip!(y, bit)
     end
-    Instance(y, x.problem, fitnessvalue = fitness(x, positions))
+    CondidateSolution(y, x.problem, fitnessvalue = fitness(x, positions))
 end
 
 
@@ -73,7 +73,7 @@ function discretepowerlaw(β::Real, n)
 end
 
 
-struct HeavyTailedMutation <: Mutation
+struct HeavyTailedMutation <: AbstractMutation
     β::Float64
     n::Integer
     dpl::DiscreteNonParametric{Int64,Float64,Base.OneTo{Int64},Array{Float64,1}}
@@ -82,7 +82,7 @@ struct HeavyTailedMutation <: Mutation
     end
 end
 
-function mutation(x::Instance, mut::HeavyTailedMutation)
+function mutation(x::CondidateSolution{BitArray}, mut::HeavyTailedMutation)
     positions = uiimutationpositions(x, rand(mut.dpl) // mut.n)
     length(positions) == 0 && return x
 
@@ -90,5 +90,5 @@ function mutation(x::Instance, mut::HeavyTailedMutation)
     for bit ∈ positions
         flip!(y, bit)
     end
-    Instance(y, x.problem, fitnessvalue = fitness(x, positions))
+    CondidateSolution(y, x.problem, fitnessvalue = fitness(x, positions))
 end
