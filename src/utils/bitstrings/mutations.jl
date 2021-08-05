@@ -13,7 +13,7 @@ struct UniformlyIndependentMutation <: AbstractMutation
 end
 
 
-function uiimutationpositions(x::CondidateSolution{BitArray}, probability::Real)
+function uiimutationpositions(x::Instance{BitArray}, probability::Real)
     if probability == 0
         return []
     elseif probability == 1
@@ -32,7 +32,7 @@ function uiimutationpositions(x::CondidateSolution{BitArray}, probability::Real)
 end
 
 
-function mutation(x::CondidateSolution{BitArray}, mut::UniformlyIndependentMutation)
+function mutation(x::Instance{BitArray}, mut::UniformlyIndependentMutation)
     positions = uiimutationpositions(x, mut.probability)
     length(positions) == 0 && return x
 
@@ -40,7 +40,7 @@ function mutation(x::CondidateSolution{BitArray}, mut::UniformlyIndependentMutat
     for bit ∈ positions
         flip!(y, bit)
     end
-    CondidateSolution(y, x.problem, fitnessvalue = fitness(x, positions))
+    Instance(y, x.problem, fitnessvalue = fitness(x, positions))
 end
 
 
@@ -48,13 +48,13 @@ struct KBitFlip <: AbstractMutation
     K::Integer
 end
 
-function mutation(x::CondidateSolution{BitArray}, mut::KBitFlip)
+function mutation(x::Instance{BitArray}, mut::KBitFlip)
     positions = sample(1:length(x), mut.K, replace = false)
     y = copy(x.individual)
     for bit ∈ positions
         flip!(y, bit)
     end
-    CondidateSolution(y, x.problem, fitnessvalue = fitness(x, positions))
+    Instance(y, x.problem, fitnessvalue = fitness(x, positions))
 end
 
 
@@ -82,7 +82,7 @@ struct HeavyTailedMutation <: AbstractMutation
     end
 end
 
-function mutation(x::CondidateSolution{BitArray}, mut::HeavyTailedMutation)
+function mutation(x::Instance{BitArray}, mut::HeavyTailedMutation)
     positions = uiimutationpositions(x, rand(mut.dpl) // mut.n)
     length(positions) == 0 && return x
 
@@ -90,5 +90,5 @@ function mutation(x::CondidateSolution{BitArray}, mut::HeavyTailedMutation)
     for bit ∈ positions
         flip!(y, bit)
     end
-    CondidateSolution(y, x.problem, fitnessvalue = fitness(x, positions))
+    Instance(y, x.problem, fitnessvalue = fitness(x, positions))
 end

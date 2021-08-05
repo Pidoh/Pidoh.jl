@@ -2,12 +2,12 @@ import Base: length, copy
 using LaTeXStrings
 
 """
-    CondidateSolution
+    Instance
 A condidate solution for a specific problem.
 ## Examples
 Consider the following example:
 ```jldoctest objective_function; setup = :(using Pidoh)
-julia> x = CondidateSolution(BitArray([true,true,false,true]), OneMax(4));
+julia> x = Instance(BitArray([true,true,false,true]), OneMax(4));
 
 julia> fitness(x)
 3
@@ -17,13 +17,13 @@ false
 
 ```
 """
-struct CondidateSolution{T}
+struct Instance{T}
     individual::T
     problem::AbstractProblem{T}
     fitnessvalue::Number
     name::LaTeXString
 
-    function CondidateSolution(
+    function Instance(
         individual::T,
         problem::AbstractProblem{T};
         fitnessvalue::Number = -1,
@@ -35,7 +35,7 @@ struct CondidateSolution{T}
         new{T}(individual, problem, fitnessvalue, name)
     end
 
-    function CondidateSolution(
+    function Instance(
         individual,
         problem::AbstractProblem{T};
         fitnessvalue::Number = -1,
@@ -48,20 +48,20 @@ struct CondidateSolution{T}
     end
 end
 
-fitness(solution::CondidateSolution) = solution.fitnessvalue
-fitness(solution::CondidateSolution, flippositions) =
+fitness(solution::Instance) = solution.fitnessvalue
+fitness(solution::Instance, flippositions) =
     fitness(solution.individual, solution.problem, solution.fitnessvalue, flippositions)
-isoptimum(solution::CondidateSolution) = fitness(solution) == optimum(solution.problem)
-length(solution::CondidateSolution) = length(solution.individual)
+isoptimum(solution::Instance) = fitness(solution) == optimum(solution.problem)
+length(solution::Instance) = length(solution.individual)
 
-function copy(solution::CondidateSolution; fitnessvalue::Number = fitness(solution))
-    CondidateSolution(solution.individual, solution.problem, fitnessvalue = fitnessvalue)
+function copy(solution::Instance; fitnessvalue::Number = fitness(solution))
+    Instance(solution.individual, solution.problem, fitnessvalue = fitnessvalue)
 end
 
 struct Population{T}
-    solutions::Vector{CondidateSolution{T}}
+    solutions::Vector{Instance{T}}
 
-    function Population(solutions::Vector{CondidateSolution{T}}) where {T}
+    function Population(solutions::Vector{Instance{T}}) where {T}
       new{T}(solutions)
     end
 end

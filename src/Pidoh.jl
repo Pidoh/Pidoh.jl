@@ -14,7 +14,7 @@ export TG, ER, Kn, GHL
 export fitness, optimum
 
 include("instance.jl")
-export CondidateSolution, Population
+export Instance, Population
 export fitness
 
 include("utils/utils.jl")

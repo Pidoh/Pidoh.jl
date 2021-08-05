@@ -6,12 +6,12 @@ using Dates
 mutable struct Trace{T}
     seed::Any
     algorithm::AbstractAlgorithm
-    individual::Union{CondidateSolution{T},Nothing}
+    individual::Union{Instance{T},Nothing}
     population::Union{Population{T},Nothing}
     rows::DataFrames.DataFrame
     optimum::NamedTuple{
         (:individual, :population, :iteration),
-        Tuple{Union{CondidateSolution{T},Missing},Union{Population{T},Missing},Int64},
+        Tuple{Union{Instance{T},Missing},Union{Population{T},Missing},Int64},
     }
 
     function Trace(
@@ -19,7 +19,7 @@ mutable struct Trace{T}
         seed::Int64 = ceil(Int64, time() * 10e6),
         rows::DataFrames.DataFrame = DataFrames.DataFrame(),
         optimum = (individual = missing, population = missing, iteration = -1);
-        individual::Union{CondidateSolution{T},Nothing} = nothing,
+        individual::Union{Instance{T},Nothing} = nothing,
         population::Union{Population{T},Nothing} = nothing,
     ) where {T}
         new{T}(seed, algorithm, individual, population, rows, optimum)
@@ -84,7 +84,7 @@ function info(trace::Trace, text, data)
     @debug text data...
 end
 
-function optimumfound(trace::Trace, x::CondidateSolution, iteration::Int64)
+function optimumfound(trace::Trace, x::Instance, iteration::Int64)
     storeresult(trace)
 end
 
@@ -92,7 +92,7 @@ function record!(
     db::Trace{T},
     iteration::Int64,
     isoptimum::Bool = false;
-    individual::Union{CondidateSolution{T},Missing} = missing,
+    individual::Union{Instance{T},Missing} = missing,
     population::Union{Population{T},Missing} = missing,
 ) where {T}
     @assert ismissing(individual) ⊻ ismissing(population) "Either population or individual should be set" # TODO

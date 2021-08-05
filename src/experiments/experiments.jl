@@ -146,7 +146,7 @@ function run!(job::Job)
     job.startdate = now()
     job.status = running
     job.threadid = Threads.threadid()
-    initial2 = CondidateSolution(generate(job.initialgenerator), job.problem)
+    initial2 = Instance(generate(job.initialgenerator), job.problem)
     job.trace = optimize(initial2, job.algorithm)
     job.status = finished
     job.finishdate = now()
