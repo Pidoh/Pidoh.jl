@@ -34,13 +34,13 @@ struct IntervalCooling <: AbstractCooling
     δ::Real
     k::Real
     function IntervalCooling(ℓ::Integer, δ::Real)
-        k = δ^(1/ℓ)
+        k = δ^(1 / ℓ)
         new(ℓ, δ, k)
     end
 end
 
 function temperature(cooling::IntervalCooling, temp::Real)
-    temp/cooling.k
+    temp / cooling.k
 end
 
 """
@@ -54,14 +54,14 @@ end
 """
 struct SimulatedAnnealing <: AbstractSimulatedAnnealing
     cooling::AbstractCooling
-    temptransformation:: Function
+    temptransformation::Function
     startingt::Real
     finishingt::Real
     stop::AbstractStop
     name::LaTeXString
     function SimulatedAnnealing(
         cooling::AbstractCooling;
-        temptransformation::Function = (x->x) ,
+        temptransformation::Function = (x -> x),
         startingt::Real = 1,
         finishingt::Real = -1,
         stop::AbstractStop = FixedBudget(10^10),

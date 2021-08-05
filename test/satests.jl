@@ -11,7 +11,7 @@ end
 @testset "Interval Cooling" begin
     temp = 100
     ic = IntervalCooling(1000, 2)
-    for i in 1:1000
+    for i = 1:1000
         temp = temperature(ic, temp)
     end
     @test abs(temp - 50) < 0.0001
