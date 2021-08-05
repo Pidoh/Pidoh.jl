@@ -7,11 +7,11 @@ abstract type AbstractIP end
 
 include("problems/problems.jl")
 export AbstractProblem, AbstractBitstringProblem, AbstractGraphProblem, AbstractAlgorithm
-export OneMax, ZeroMax, Jump
+export OneMax, ZeroMax, Jump, LeadingOnes, CliffTwoParameters
 export MST, MaximumMatching
 export MaxSAT, MaxSATgeneratorP
 export TG, ER, Kn, GHL
-export fitness, optimum
+export fitness, optimum, realparameters
 
 include("instance.jl")
 export Instance
@@ -27,18 +27,19 @@ export generate
 
 
 include("trace.jl")
-export Trace, info, record
+export Trace, info, record, deepparameters
 
 include("algorithms/algorithms.jl")
 
 include("experiments/experiments.jl")
 # include("experiments/engines.jl")
 export Experiment
+export Job
 export HPC
 export cluster,
     createworkspaceinserver, createworkspace, loadexperiment, fetch, mergeexperiments
 
 include("benchmark/benchmark.jl")
-export benchmark
+export benchmark, runtimes
 
 end
