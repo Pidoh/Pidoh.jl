@@ -1,6 +1,6 @@
 using Random
 
-abstract type AbstractSatProblem <: AbstractProblem end
+abstract type AbstractSatProblem <: AbstractProblem{Any} end
 
 import Base: length
 

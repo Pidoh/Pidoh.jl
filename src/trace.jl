@@ -3,21 +3,26 @@ using CSV
 using Random
 using Dates
 
-mutable struct Trace
+mutable struct Trace{T}
     seed::Any
     algorithm::AbstractAlgorithm
-    individual::Instance
+    individual::Union{CondidateSolution{T},Nothing}
+    population::Union{Population{T},Nothing}
     rows::DataFrames.DataFrame
-    optimum::NamedTuple{(:individual, :iteration),Tuple{Any,Int64}}
+    optimum::NamedTuple{
+        (:individual, :population, :iteration),
+        Tuple{Union{CondidateSolution{T},Missing},Union{Population{T},Missing},Int64},
+    }
 
     function Trace(
         algorithm::AbstractAlgorithm,
-        individual::Instance;
         seed::Int64 = ceil(Int64, time() * 10e6),
         rows::DataFrames.DataFrame = DataFrames.DataFrame(),
-        optimum = (individual = missing, iteration = -1),
-    )
-        new(seed, algorithm, individual, rows, optimum)
+        optimum = (individual = missing, population = missing, iteration = -1);
+        individual::Union{CondidateSolution{T},Nothing} = nothing,
+        population::Union{Population{T},Nothing} = nothing,
+    ) where {T}
+        new{T}(seed, algorithm, individual, population, rows, optimum)
     end
 end
 
@@ -79,16 +84,30 @@ function info(trace::Trace, text, data)
     @debug text data...
 end
 
-function optimumfound(trace::Trace, x::Instance, iteration::Int64)
+function optimumfound(trace::Trace, x::CondidateSolution, iteration::Int64)
     storeresult(trace)
 end
 
-function record(db::Trace, x::Instance, iteration::Int64, isoptimum::Bool = false)
-    tuple = (iteration = iteration, fitness = fitness(x))
+function record!(
+    db::Trace{T},
+    iteration::Int64,
+    isoptimum::Bool = false;
+    individual::Union{CondidateSolution{T},Missing} = missing,
+    population::Union{Population{T},Missing} = missing,
+) where {T}
+    @assert ismissing(individual) ⊻ ismissing(population) "Either population or individual should be set" # TODO
+
+    if !ismissing(population)
+      fitness_value = fitness(population)
+    else
+      fitness_value = fitness(individual)
+    end
+
+    tuple = (iteration = iteration, fitness = fitness_value)
     info(db, "New row is inserted.", tuple)
-    push!(db.rows, (iteration = iteration, fitness = fitness(x)))
-    db.optimum = (individual = x.individual, iteration = iteration)
-    isoptimum && optimumfound(db, x, iteration)
+    push!(db.rows, (iteration = iteration, fitness = fitness(individual)))
+    db.optimum = (individual = individual, population=population, iteration = iteration)
+    isoptimum && optimumfound(db, individual, iteration)
 end
 
 #

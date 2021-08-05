@@ -1,5 +1,5 @@
 
-abstract type AbstractBitstringProblem <: AbstractProblem end
+abstract type AbstractBitstringProblem <: AbstractProblem{BitArray} end
 
 import Base: length
 
