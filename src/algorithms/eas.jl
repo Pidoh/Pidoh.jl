@@ -45,7 +45,7 @@ function optimize(initial, setting::ea1pλwith2rates)
         # The second condition is for implementing "breaking ties randomly".
         if fitness(α) ≥ fitness(x)
             if fitness(α) > fitness(x)
-                record!(trace, iter, isoptimum(α), individual=α )
+                record!(trace, iter, isoptimum(α), individual = α)
             end
             x = α
 
@@ -83,7 +83,7 @@ end
 
 function optimize(initial, setting::ea1p1)
     x = initial
-    trace = Trace(setting, individual=x)
+    trace = Trace(setting, individual = x)
     n = length(x)
     # bitrand returns a random bit string.
 
@@ -96,7 +96,7 @@ function optimize(initial, setting::ea1p1)
         if fitness(y) ≥ fitness(x)
             if fitness(y) > fitness(x)
                 # println(fitness(y))
-                record!(trace, iter, isoptimum(y), individual=y)
+                record!(trace, iter, isoptimum(y), individual = y)
             end
             x = y
 

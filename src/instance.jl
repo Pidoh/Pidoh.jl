@@ -41,10 +41,12 @@ struct Instance{T}
         fitnessvalue::Number = -1,
         name::LaTeXString = L"problem",
     ) where {T}
-        throw(DomainError(
-            individual,
-            "The problem $(typeof(problem)) only accepts $(string(T)) as a solution.",
-        ))
+        throw(
+            DomainError(
+                individual,
+                "The problem $(typeof(problem)) only accepts $(string(T)) as a solution.",
+            ),
+        )
     end
 end
 
@@ -62,7 +64,7 @@ struct Population{T}
     solutions::Vector{Instance{T}}
 
     function Population(solutions::Vector{Instance{T}}) where {T}
-      new{T}(solutions)
+        new{T}(solutions)
     end
 end
 

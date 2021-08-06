@@ -19,14 +19,14 @@ export fitness
 
 include("utils/utils.jl")
 export UniformlyIndependentMutation, HeavyTailedMutation
-export mutation, flip, mutationpositions, Population, crossover, select
+export mutation, flip, mutationpositions, Population
 export visualize, unmarkededges, markededges, graph_bitstring
 export RandBitStringIP
 export generate
 
 
 include("trace.jl")
-export Trace, info, record
+export Trace, info, record!
 
 include("algorithms/algorithms.jl")
 export name
@@ -45,4 +45,3 @@ include("benchmark/benchmark.jl")
 export benchmark
 
 end
-

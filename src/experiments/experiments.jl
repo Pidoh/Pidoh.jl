@@ -12,7 +12,7 @@ import Base: run, length
 mutable struct Job
     jobid::UUID
     algorithm::AbstractAlgorithm
-    problem::Any
+    problem::AbstractProblem
     initialgenerator::AbstractIP
     trace::Union{Trace,Nothing}
     status::JobStatus
@@ -23,8 +23,8 @@ mutable struct Job
 
     function Job(
         algorithm::AbstractAlgorithm,
-        initialgenerator::AbstractIP,
-        problem::ProblemT,
+        initialgenerator::AbstractIP{T},
+        problem::AbstractProblem{T},
         jobid::UUID = uuid4(),
         trace::Union{Trace,Nothing} = nothing,
         status::JobStatus = pending,
@@ -32,7 +32,7 @@ mutable struct Job
         finishdate::Union{DateTime,Nothing} = nothing,
         threadid::Union{Int64,Nothing} = nothing,
         serverid::Union{Int64,Nothing} = nothing,
-      ) where {ProblemT<:AbstractProblem}
+    ) where {T}
         new(
             jobid,
             algorithm,
@@ -59,11 +59,7 @@ struct Experiment
         problems::Vector{ProblemT},
         initialgenerators::Vector{GeneratorT},
         repeat::Integer = 1,
-    ) where {
-        AlgorithmT<:AbstractAlgorithm,
-        ProblemT<:AbstractProblem,
-        GeneratorT<:AbstractIP,
-    }
+    ) where {AlgorithmT<:AbstractAlgorithm,ProblemT<:AbstractProblem,GeneratorT<:AbstractIP}
         if length(algorithms) ≠ length(initialgenerators)
             error("The number of algorithms is not match with the number of initials.")
         end
@@ -78,8 +74,8 @@ struct Experiment
         end
 
         jobs = [
-            Job(algorithms[i], initialgenerators[i], problems[i]) for j = 1:repeat
-            for i = 1:length(algorithms)
+            Job(algorithms[i], initialgenerators[i], problems[i]) for j = 1:repeat for
+            i = 1:length(algorithms)
         ]
         obj = new(name, jobs, workspace)
         mkworkspace(obj)
@@ -146,8 +142,8 @@ function run!(job::Job)
     job.startdate = now()
     job.status = running
     job.threadid = Threads.threadid()
-    initial2 = Instance(generate(job.initialgenerator), job.problem)
-    job.trace = optimize(initial2, job.algorithm)
+    initialpoint = Instance(generate(job.initialgenerator), job.problem)
+    job.trace = optimize(initialpoint, job.algorithm)
     job.status = finished
     job.finishdate = now()
     @info("The job finished.")

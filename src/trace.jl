@@ -98,15 +98,15 @@ function record!(
     @assert ismissing(individual) ⊻ ismissing(population) "Either population or individual should be set" # TODO
 
     if !ismissing(population)
-      fitness_value = fitness(population)
+        fitness_value = fitness(population)
     else
-      fitness_value = fitness(individual)
+        fitness_value = fitness(individual)
     end
 
     tuple = (iteration = iteration, fitness = fitness_value)
     info(db, "New row is inserted.", tuple)
     push!(db.rows, (iteration = iteration, fitness = fitness(individual)))
-    db.optimum = (individual = individual, population=population, iteration = iteration)
+    db.optimum = (individual = individual, population = population, iteration = iteration)
     isoptimum && optimumfound(db, individual, iteration)
 end
 
