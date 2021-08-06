@@ -1,12 +1,13 @@
-abstract type AbstractGraphProblem <: AbstractProblem{Any} end
+abstract type AbstractGraphProblem <: AbstractProblem{BitArray} end
 
 import Base: length
 
 
 using LightGraphs, SimpleWeightedGraphs
 
+
 struct MST <: AbstractGraphProblem
-    g::Any
+    g::SimpleWeightedGraph
     optimum::Real
     function MST(g; optimum::Real = -mst_value(g))
         new(g, optimum)
@@ -89,7 +90,7 @@ end
 #
 #
 struct MaximumMatching <: AbstractGraphProblem
-    g::Any
+    g::SimpleGraph
     optimum::Real
     function MaximumMatching(g, optimum::Real)
         new(g, optimum)
