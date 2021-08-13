@@ -20,7 +20,9 @@ export fitness
 
 include("utils/utils.jl")
 export UniformlyIndependentMutation, HeavyTailedMutation
-export mutation, flip, mutationpositions
+export mutation, flip, mutationpositions, Population
+export OnePointCrossover, crossover, mate
+export UniformlyIndependentSelection, TournamentSelection
 export visualize, unmarkededges, markededges, graph_bitstring
 export RandBitStringIP
 export generate
@@ -32,6 +34,7 @@ export Trace, info, record
 include("algorithms/algorithms.jl")
 export name
 export optimize, ea1pλwith2rates, ea1p1, ea1p1SD, ea1pλSASD, RLSSDstar, RLS12, RLSSDstarstar
+export ga
 export SDCounter, SDCounterEstimation, RLSSDCounter, threshold_gen
 export FixedBudget, niterations
 
