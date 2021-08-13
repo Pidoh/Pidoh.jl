@@ -18,8 +18,8 @@ mutable struct Job
     status::JobStatus
     startdate::Union{DateTime,Nothing}
     finishdate::Union{DateTime,Nothing}
-    threadid::Union{Int64,Nothing}
-    serverid::Union{Int64,Nothing}
+    threadid::Union{Integer,Nothing}
+    serverid::Union{Integer,Nothing}
 
     function Job(
         algorithm::AbstractAlgorithm,
@@ -30,8 +30,8 @@ mutable struct Job
         status::JobStatus = pending,
         startdate::Union{DateTime,Nothing} = nothing,
         finishdate::Union{DateTime,Nothing} = nothing,
-        threadid::Union{Int64,Nothing} = nothing,
-        serverid::Union{Int64,Nothing} = nothing,
+        threadid::Union{Integer,Nothing} = nothing,
+        serverid::Union{Integer,Nothing} = nothing,
     ) where {T}
         new(
             jobid,
@@ -52,33 +52,42 @@ struct Experiment
     name::String
     jobs::Array{Job,1}
     workspace::String
+    save::Bool
 
     function Experiment(
         name::String,
         algorithms::Vector{AlgorithmT},
         problems::Vector{ProblemT},
-        initialgenerators::Vector{GeneratorT},
+        initialgenerators::Vector{GeneratorT};
+        save::Bool = true,
         repeat::Integer = 1,
     ) where {AlgorithmT<:AbstractAlgorithm,ProblemT<:AbstractProblem,GeneratorT<:AbstractIP}
         if length(algorithms) ≠ length(initialgenerators)
             error("The number of algorithms is not match with the number of initials.")
         end
 
-        if !ispath("_workspace/$(name)")
-            workspace = "_workspace/$(name)"
-        elseif !ispath("_workspace/$(name)_" * Dates.format(now(), "SS"))
-
-            workspace = "_workspace/$(name)_" * Dates.format(now(), "SS")
-        else
-            workspace = "_workspace/$(name)_" * Dates.format(now(), "mmddHHMMSS")
-        end
-
         jobs = [
             Job(algorithms[i], initialgenerators[i], problems[i]) for j = 1:repeat for
             i = 1:length(algorithms)
         ]
-        obj = new(name, jobs, workspace)
-        mkworkspace(obj)
+
+        if save
+            if !ispath("_workspace/$(name)")
+                workspace = "_workspace/$(name)"
+            elseif !ispath("_workspace/$(name)_" * Dates.format(now(), "SS"))
+
+                workspace = "_workspace/$(name)_" * Dates.format(now(), "SS")
+            else
+                workspace = "_workspace/$(name)_" * Dates.format(now(), "mmddHHMMSS")
+            end
+        else
+            workspace = "@memory/$(name)"
+        end
+        obj = new(name, jobs, workspace, save)
+
+        if save
+            mkworkspace(obj)
+        end
         return obj
     end
 end
@@ -153,16 +162,15 @@ function run!(job::Job)
     @info("The job finished.")
 end
 
-function run!(exp::Experiment, serverid::Int64 = 0, shuffle::Bool = true)
-    queue = collect(1:length(exp))
+function run!(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
+    queue = collect(Integer, 1:length(exp))
     if shuffle
         shuffle!(queue)
     end
     @info("Server $serverid is started to work.")
-    # Threads.@threads for i in queue
     for i in queue
         job = exp.jobs[i]
-        @info("Job $i: $(job.serverid)")
+        @info("Job $i.")
         if serverid == 0 || job.serverid == serverid
             if job.status == pending
                 @info("Job $i is processing in server $serverid.")
@@ -171,9 +179,9 @@ function run!(exp::Experiment, serverid::Int64 = 0, shuffle::Bool = true)
             end
         end
     end
-    # println("HEEE")
-    # @info("The jobs finished.")
-    updateworkspace(exp)
+    if exp.save
+        updateworkspace(exp)
+    end
     exp
 end
 
@@ -182,7 +190,9 @@ function run!(exp::Experiment, hpc::HPC)
     for job in exp.jobs
         job.serverid = rand(1:(hpc.jobs))
     end
-    updateworkspace(exp)
+    if exp.save
+        updateworkspace(exp)
+    end
 
     createtasktemplate(exp, hpc)
     createworkspaceinserver(exp, hpc)

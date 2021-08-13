@@ -11,12 +11,12 @@ mutable struct Trace{T}
     rows::DataFrames.DataFrame
     optimum::NamedTuple{
         (:individual, :population, :iteration),
-        Tuple{Union{Instance{T},Missing},Union{Population{T},Missing},Int64},
+        Tuple{Union{Instance{T},Missing},Union{Population{T},Missing},Integer},
     }
 
     function Trace(
         algorithm::AbstractAlgorithm,
-        seed::Int64 = ceil(Int64, time() * 10e6),
+        seed::Integer = ceil(Integer, (time() * 10e6) % typemax(Int)),
         rows::DataFrames.DataFrame = DataFrames.DataFrame(),
         optimum = (individual = missing, population = missing, iteration = -1);
         individual::Union{Instance{T},Nothing} = nothing,
@@ -64,7 +64,6 @@ function storeresult(trace::Trace)
 
     result_df = DataFrame(result)
 
-    # CSV.write("results/rows.csv", db.rows_df, append=true)
     csvfilename = string(typeof(trace.algorithm))
     writeheader = false
     rlock = Threads.Condition()
@@ -84,13 +83,13 @@ function info(trace::Trace, text, data)
     @debug text data...
 end
 
-function optimumfound(trace::Trace, x::Instance, iteration::Int64)
+function optimumfound(trace::Trace, x::Instance, iteration::Integer)
     storeresult(trace)
 end
 
 function record!(
     db::Trace{T},
-    iteration::Int64,
+    iteration::Integer,
     isoptimum::Bool = false;
     individual::Union{Instance{T},Missing} = missing,
     population::Union{Population{T},Missing} = missing,
@@ -109,9 +108,3 @@ function record!(
     db.optimum = (individual = individual, population = population, iteration = iteration)
     isoptimum && optimumfound(db, individual, iteration)
 end
-
-#
-# function result(db::dbEngine, data)
-#     @debug "Result" data...
-#     push!(db.results, data)
-# end
