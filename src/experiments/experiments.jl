@@ -142,7 +142,11 @@ function run!(job::Job)
     job.startdate = now()
     job.status = running
     job.threadid = Threads.threadid()
-    initialpoint = Instance(generate(job.initialgenerator), job.problem)
+    if isa(job.algorithm, AbstractPopAlgorithm)
+        initialpoint = Population(generate(job.initialgenerator), job.problem)
+    else
+        initialpoint = Instance(generate(job.initialgenerator), job.problem)
+    end
     job.trace = optimize(initialpoint, job.algorithm)
     job.status = finished
     job.finishdate = now()

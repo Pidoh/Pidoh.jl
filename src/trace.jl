@@ -95,7 +95,7 @@ function record!(
     individual::Union{Instance{T},Missing} = missing,
     population::Union{Population{T},Missing} = missing,
 ) where {T}
-    @assert ismissing(individual) ⊻ ismissing(population) "Either population or individual should be set" # TODO
+    @assert ismissing(individual) ⊻ ismissing(population) "Either `population` or `individual` should be set." # TODO
 
     if !ismissing(population)
         fitness_value = fitness(population)
@@ -105,7 +105,7 @@ function record!(
 
     tuple = (iteration = iteration, fitness = fitness_value)
     info(db, "New row is inserted.", tuple)
-    push!(db.rows, (iteration = iteration, fitness = fitness(individual)))
+    push!(db.rows, (iteration = iteration, fitness = fitness_value))
     db.optimum = (individual = individual, population = population, iteration = iteration)
     isoptimum && optimumfound(db, individual, iteration)
 end

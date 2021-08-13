@@ -2,6 +2,7 @@ module Pidoh
 
 abstract type AbstractProblem{SolutionT} end
 abstract type AbstractAlgorithm end
+abstract type AbstractPopAlgorithm <: AbstractAlgorithm end
 abstract type AbstractStop end
 abstract type AbstractIP{T} end
 
@@ -21,7 +22,7 @@ include("utils/utils.jl")
 export UniformlyIndependentMutation, HeavyTailedMutation
 export mutation, flip, mutationpositions, Population
 export visualize, unmarkededges, markededges, graph_bitstring
-export RandBitStringIP
+export RandBitStringIndividualIP, RandBitStringPopulationIP
 export generate
 
 

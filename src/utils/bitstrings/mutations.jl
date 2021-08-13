@@ -92,3 +92,7 @@ function mutation(x::Instance{BitArray}, mut::HeavyTailedMutation)
     end
     Instance(y, x.problem, fitnessvalue = fitness(x, positions))
 end
+
+function mutation(x::Population, mut::AbstractMutation)
+    Population(mutation.(x.solutions, [mut]), x.problem)
+end

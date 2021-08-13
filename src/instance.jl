@@ -61,11 +61,42 @@ function copy(solution::Instance; fitnessvalue::Number = fitness(solution))
 end
 
 struct Population{T}
+    problem::AbstractProblem{T}
     solutions::Vector{Instance{T}}
+    fittest::Instance{T}
 
-    function Population(solutions::Vector{Instance{T}}) where {T}
-        new{T}(solutions)
+    function Population(
+        solutions::Vector{Instance{T}},
+        problem::AbstractProblem{T},
+    ) where {T}
+        @assert length(solutions) > 0 "your population can't be empty"
+
+        fittest = solutions[1]
+        for i = 2:length(solutions)
+            if fitness(solutions[i]) > fitness(fittest)
+                fittest = solutions[i]
+            end
+        end
+
+        new{T}(problem, solutions, fittest)
+    end
+
+    function Population(solutions::Vector{T}, problem::AbstractProblem{T}) where {T}
+        @assert length(solutions) > 0 "your population can't be empty"
+        solutions::Vector{Instance{T}} = map(x -> Instance(x, problem), solutions)
+
+        fittest = solutions[1]
+        for i = 2:length(solutions)
+            if fitness(solutions[i]) > fitness(fittest)
+                fittest = solutions[i]
+            end
+        end
+
+        new{T}(problem, solutions, fittest)
     end
 end
 
-fitness(population::Population) = maximum(fitness, population.solutions)
+fittest(population::Population) = population.fittest
+fitness(population::Population) = fitness(fittest(population))
+hasoptimum(population::Population) =
+    fitness(population.fittest) == optimum(population.problem)
