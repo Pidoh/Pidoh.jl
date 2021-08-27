@@ -56,7 +56,7 @@ function optimize(x, setting::SimulatedAnnealing)
 
         if Δ ≥ 0
             if Δ > 0
-              record!(trace, iter, isoptimum(y), individual = y)
+                record!(trace, iter, isoptimum(y), individual = y)
             end
             x = y
             if isoptimum(x)
