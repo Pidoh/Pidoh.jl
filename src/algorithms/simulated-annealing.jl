@@ -46,8 +46,7 @@ struct SimulatedAnnealing <: AbstractSimulatedAnnealing
 end
 
 function optimize(x, setting::SimulatedAnnealing)
-    trace = Trace(setting, x)
-    x = initial(x)
+    trace = Trace(setting, individual = x)
     n = length(x)
 
     for iter ∈ 1:niterations(setting.stop)
@@ -57,14 +56,14 @@ function optimize(x, setting::SimulatedAnnealing)
 
         if Δ ≥ 0
             if Δ > 0
-                record(trace, y, iter, isoptimum(y))
+              record!(trace, iter, isoptimum(y), individual = y)
             end
             x = y
             if isoptimum(x)
                 return trace
             end
         elseif rand() ≤ α^(Δ)
-            record(trace, y, iter, isoptimum(y))
+            record!(trace, iter, isoptimum(y), individual = y)
             x = y
         end
     end
