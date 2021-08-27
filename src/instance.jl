@@ -3,7 +3,7 @@ using LaTeXStrings
 
 """
     Instance
-Solution instance
+A condidate solution for a specific problem.
 ## Examples
 Consider the following example:
 ```jldoctest objective_function; setup = :(using Pidoh)
@@ -12,59 +12,91 @@ julia> x = Instance(BitArray([true,true,false,true]), OneMax(4));
 julia> fitness(x)
 3
 
-julia> optimum(x)
-4
+julia> isoptimum(x)
+false
 
 ```
 """
-struct Instance
-    individual::Any
-    problem::AbstractProblem
-    generator::Union{Nothing,AbstractIP}
+struct Instance{T}
+    individual::T
+    problem::AbstractProblem{T}
     fitnessvalue::Number
     name::LaTeXString
 
     function Instance(
-        individual,
-        problem::AbstractProblem;
-        generator::Union{Nothing,AbstractIP} = nothing,
+        individual::T,
+        problem::AbstractProblem{T};
         fitnessvalue::Number = -1,
         name::LaTeXString = L"problem",
-    )
+    ) where {T}
         if fitnessvalue == -1
             fitnessvalue = fitness(individual, problem)
         end
-        new(individual, problem, generator, fitnessvalue, name)
+        new{T}(individual, problem, fitnessvalue, name)
     end
 
     function Instance(
-        problem::AbstractProblem;
-        generator::Union{Nothing,AbstractIP} = nothing,
-        individual = nothing,
+        individual,
+        problem::AbstractProblem{T};
         fitnessvalue::Number = -1,
         name::LaTeXString = L"problem",
-    )
-        if !isnothing(individual) && fitnessvalue == -1
-            fitnessvalue = fitness(individual, problem)
+    ) where {T}
+        throw(
+            DomainError(
+                individual,
+                "The problem $(typeof(problem)) only accepts $(string(T)) as a solution.",
+            ),
+        )
+    end
+end
+
+fitness(solution::Instance) = solution.fitnessvalue
+fitness(solution::Instance, flippositions) =
+    fitness(solution.individual, solution.problem, solution.fitnessvalue, flippositions)
+isoptimum(solution::Instance) = fitness(solution) == optimum(solution.problem)
+length(solution::Instance) = length(solution.individual)
+
+function copy(solution::Instance; fitnessvalue::Number = fitness(solution))
+    Instance(solution.individual, solution.problem, fitnessvalue = fitnessvalue)
+end
+
+struct Population{T}
+    problem::AbstractProblem{T}
+    solutions::Vector{Instance{T}}
+    fittest::Instance{T}
+
+    function Population(
+        solutions::Vector{Instance{T}},
+        problem::AbstractProblem{T},
+    ) where {T}
+        @assert length(solutions) > 0 "your population can't be empty"
+
+        fittest = solutions[1]
+        for i = 2:length(solutions)
+            if fitness(solutions[i]) > fitness(fittest)
+                fittest = solutions[i]
+            end
         end
-        new(individual, problem, generator, fitnessvalue, name)
+
+        new{T}(problem, solutions, fittest)
+    end
+
+    function Population(solutions::Vector{T}, problem::AbstractProblem{T}) where {T}
+        @assert length(solutions) > 0 "your population can't be empty"
+        solutions::Vector{Instance{T}} = map(x -> Instance(x, problem), solutions)
+
+        fittest = solutions[1]
+        for i = 2:length(solutions)
+            if fitness(solutions[i]) > fitness(fittest)
+                fittest = solutions[i]
+            end
+        end
+
+        new{T}(problem, solutions, fittest)
     end
 end
 
-fitness(instance::Instance) = instance.fitnessvalue
-fitness(instance::Instance, flippositions) =
-    fitness(instance.individual, instance.problem, instance.fitnessvalue, flippositions)
-optimum(instance::Instance) = optimum(instance.problem)
-isoptimum(instance::Instance) = fitness(instance) == optimum(instance)
-length(instance::Instance) = length(instance.individual)
-
-function initial(instance::Instance)
-    ind = generate(instance.generator)
-    if !isnothing(instance.generator)
-        return Instance(instance.problem, individual = ind)
-    end
-end
-
-function copy(instance::Instance; fitnessvalue::Number = fitness(instance))
-    Instance(instance.individual, instance.problem, fitnessvalue = fitnessvalue)
-end
+fittest(population::Population) = population.fittest
+fitness(population::Population) = fitness(fittest(population))
+hasoptimum(population::Population) =
+    fitness(population.fittest) == optimum(population.problem)

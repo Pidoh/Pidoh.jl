@@ -12,7 +12,8 @@ import Base: run, length
 mutable struct Job
     jobid::UUID
     algorithm::AbstractAlgorithm
-    instance::Instance
+    problem::AbstractProblem
+    initialgenerator::AbstractIP
     trace::Union{Trace,Nothing}
     status::JobStatus
     startdate::Union{DateTime,Nothing}
@@ -20,10 +21,10 @@ mutable struct Job
     threadid::Union{Integer,Nothing}
     serverid::Union{Integer,Nothing}
 
-
     function Job(
         algorithm::AbstractAlgorithm,
-        instance::Instance;
+        initialgenerator::AbstractIP{T},
+        problem::AbstractProblem{T},
         jobid::UUID = uuid4(),
         trace::Union{Trace,Nothing} = nothing,
         status::JobStatus = pending,
@@ -31,8 +32,18 @@ mutable struct Job
         finishdate::Union{DateTime,Nothing} = nothing,
         threadid::Union{Integer,Nothing} = nothing,
         serverid::Union{Integer,Nothing} = nothing,
-    )
-        new(jobid, algorithm, instance, trace, status, startdate, finishdate, serverid)
+    ) where {T}
+        new(
+            jobid,
+            algorithm,
+            problem,
+            initialgenerator,
+            trace,
+            status,
+            startdate,
+            finishdate,
+            serverid,
+        )
     end
 end
 
@@ -45,17 +56,20 @@ struct Experiment
 
     function Experiment(
         name::String,
-        algorithms::Array{T,1},
-        instances::Array{Instance,1};
+        algorithms::Vector{AlgorithmT},
+        problems::Vector{ProblemT},
+        initialgenerators::Vector{GeneratorT};
         save::Bool = true,
         repeat::Integer = 1,
-    ) where {T<:AbstractAlgorithm}
-        if length(algorithms) ≠ length(instances)
+    ) where {AlgorithmT<:AbstractAlgorithm,ProblemT<:AbstractProblem,GeneratorT<:AbstractIP}
+        if length(algorithms) ≠ length(initialgenerators)
             error("The number of algorithms is not match with the number of initials.")
         end
 
-        jobs =
-            [Job(algorithms[i], instances[i]) for j = 1:repeat for i = 1:length(algorithms)]
+        jobs = [
+            Job(algorithms[i], initialgenerators[i], problems[i]) for j = 1:repeat for
+            i = 1:length(algorithms)
+        ]
 
         if save
             if !ispath("_workspace/$(name)")
@@ -132,18 +146,23 @@ end
 
 include("engines.jl")
 
-function run(job::Job)
+function run!(job::Job)
     dateformat = "HH:MM:SS dd u y"
     job.startdate = now()
     job.status = running
     job.threadid = Threads.threadid()
-    job.trace = optimize(job.instance, job.algorithm)
+    if isa(job.algorithm, AbstractPopAlgorithm)
+        initialpoint = Population(generate(job.initialgenerator), job.problem)
+    else
+        initialpoint = Instance(generate(job.initialgenerator), job.problem)
+    end
+    job.trace = optimize(initialpoint, job.algorithm)
     job.status = finished
     job.finishdate = now()
     @info("The job finished.")
 end
 
-function run(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
+function run!(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
     queue = collect(Integer, 1:length(exp))
     if shuffle
         shuffle!(queue)
@@ -156,7 +175,7 @@ function run(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
             if job.status == pending
                 @info("Job $i is processing in server $serverid.")
                 job.status = assigned
-                run(job)
+                run!(job)
             end
         end
     end
@@ -167,9 +186,9 @@ function run(exp::Experiment, serverid::Integer = 0, shuffle::Bool = true)
 end
 
 
-function run(exp::Experiment, hpc::HPC)
+function run!(exp::Experiment, hpc::HPC)
     for job in exp.jobs
-        job.serverid = rand(1:hpc.jobs)
+        job.serverid = rand(1:(hpc.jobs))
     end
     if exp.save
         updateworkspace(exp)

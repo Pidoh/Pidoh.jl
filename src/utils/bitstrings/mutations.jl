@@ -6,14 +6,14 @@ function flip!(individual::BitArray, index::Integer)
     individual[index] = ~individual[index]
 end
 
-abstract type Mutation end
+abstract type AbstractMutation end
 
-struct UniformlyIndependentMutation <: Mutation
+struct UniformlyIndependentMutation <: AbstractMutation
     probability::Real
 end
 
 
-function uiimutationpositions(x::Instance, probability::Real)
+function uiimutationpositions(x::Instance{BitArray}, probability::Real)
     if probability == 0
         return []
     elseif probability == 1
@@ -32,7 +32,7 @@ function uiimutationpositions(x::Instance, probability::Real)
 end
 
 
-function mutation(x::Instance, mut::UniformlyIndependentMutation)
+function mutation(x::Instance{BitArray}, mut::UniformlyIndependentMutation)
     positions = uiimutationpositions(x, mut.probability)
     length(positions) == 0 && return x
 
@@ -44,11 +44,11 @@ function mutation(x::Instance, mut::UniformlyIndependentMutation)
 end
 
 
-struct KBitFlip <: Mutation
+struct KBitFlip <: AbstractMutation
     K::Integer
 end
 
-function mutation(x::Instance, mut::KBitFlip)
+function mutation(x::Instance{BitArray}, mut::KBitFlip)
     positions = sample(1:length(x), mut.K, replace = false)
     y = copy(x.individual)
     for bit ∈ positions
@@ -73,7 +73,7 @@ function discretepowerlaw(β::Real, n)
 end
 
 
-struct HeavyTailedMutation <: Mutation
+struct HeavyTailedMutation <: AbstractMutation
     β::Float64
     n::Integer
     dpl::DiscreteNonParametric{Integer,Float64,Base.OneTo{Integer},Array{Float64,1}}
@@ -82,7 +82,7 @@ struct HeavyTailedMutation <: Mutation
     end
 end
 
-function mutation(x::Instance, mut::HeavyTailedMutation)
+function mutation(x::Instance{BitArray}, mut::HeavyTailedMutation)
     positions = uiimutationpositions(x, rand(mut.dpl) // mut.n)
     length(positions) == 0 && return x
 
@@ -91,4 +91,8 @@ function mutation(x::Instance, mut::HeavyTailedMutation)
         flip!(y, bit)
     end
     Instance(y, x.problem, fitnessvalue = fitness(x, positions))
+end
+
+function mutation(x::Population, mut::AbstractMutation)
+    Population(mutation.(x.solutions, [mut]), x.problem)
 end
